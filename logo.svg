@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><rect width="100%" height="100%" fill="#808080" />
+	<path d='M500,500 L500,125.5' stroke='url(#gradl01)' stroke-width='30' />
+	<path d='M500,500 L500,125.5' stroke='#cccccc' stroke-width='18' />
+	<defs>
+		<linearGradient gradientUnits="userSpaceOnUse" id="gradl01" x1="500" y1="500" x2="500" y2="125.5">
+			<stop offset="0%" style="stop-color:#000" />
+			<stop offset="100%" style="stop-color:#cccccc" />
+		</linearGradient>
+	</defs>
+	<path d='M500,500 L159.2,344.7' stroke='url(#gradl11)' stroke-width='30' />
+	<path d='M500,500 L159.2,344.7' stroke='#cccccc' stroke-width='18' />
+	<defs>
+		<linearGradient gradientUnits="userSpaceOnUse" id="gradl11" x1="500" y1="500" x2="159.2" y2="344.7">
+			<stop offset="0%" style="stop-color:#000" />
+			<stop offset="100%" style="stop-color:#cccccc" />
+		</linearGradient>
+	</defs>
+	<path d='M500,500 L394.3,859.3' stroke='url(#gradl21)' stroke-width='30' />
+	<path d='M500,500 L394.3,859.3' stroke='#cccccc' stroke-width='18' />
+	<defs>
+		<linearGradient gradientUnits="userSpaceOnUse" id="gradl21" x1="500" y1="500" x2="394.3" y2="859.3">
+			<stop offset="0%" style="stop-color:#000" />
+			<stop offset="100%" style="stop-color:#cccccc" />
+		</linearGradient>
+	</defs>
+	<path d='M500,500 L870.7,553.4' stroke='url(#gradl31)' stroke-width='30' />
+	<path d='M500,500 L870.7,553.4' stroke='#cccccc' stroke-width='18' />
+	<defs>
+		<linearGradient gradientUnits="userSpaceOnUse" id="gradl31" x1="500" y1="500" x2="870.7" y2="553.4">
+			<stop offset="0%" style="stop-color:#000" />
+			<stop offset="100%" style="stop-color:#cccccc" />
+		</linearGradient>
+	</defs>
+
+	<path d='M500,500 m-94.5,0 a 94.5,94.5 0,1 1,189,0 a 94.5,94.5,0,1,1,-189,0z' fill='url(#gradm1)' />
+	<path d='M500,500 m-81,0 a 81,81 0,1 1,162,0 a 81,81,0,1,1,-162,0z' fill='url(#gradm2)' />
+	<defs>
+		<linearGradient id="gradm1" x1="6.6987298107781%" y1="75%" x2="93.301270189222%" y2="25%">
+			<stop offset="0%" style="stop-color:#808080" />
+			<stop offset="100%" style="stop-color:#808080" />
+		</linearGradient>
+	</defs>
+	<defs>
+		<linearGradient id="gradm2" x1="6.6987298107781%" y1="75%" x2="93.301270189222%" y2="25%">
+			<stop offset="0%" style="stop-color:#000" />
+			<stop offset="100%" style="stop-color:#ffffff" />
+		</linearGradient>
+	</defs>
+	<path d='M500,125.5 m-63,0 a 63,63 0,1 1,126,0 a 63,63,0,1,1,-126,0z' fill='url(#grads01)' />
+	<path d='M500,125.5 m-54,0 a 54,54 0,1 1,108,0 a 54,54,0,1,1,-108,0z' fill='url(#grads02)' />
+	<defs>
+		<linearGradient id="grads01" x1="6.6987298107781%" y1="75%" x2="93.301270189222%" y2="25%">
+			<stop offset="0%" style="stop-color:#004E00" />
+			<stop offset="100%" style="stop-color:#32B24B" />
+		</linearGradient>
+		<linearGradient id="grads02" x1="6.6987298107781%" y1="75%" x2="93.301270189222%" y2="25%">
+			<stop offset="0%" style="stop-color:#CD0100" />
+			<stop offset="100%" style="stop-color:#FF6532" />
+		</linearGradient>
+	</defs>
+	<path d='M159.2,344.7 m-63,0 a 63,63 0,1 1,126,0 a 63,63,0,1,1,-126,0z' fill='url(#grads11)' />
+	<path d='M159.2,344.7 m-54,0 a 54,54 0,1 1,108,0 a 54,54,0,1,1,-108,0z' fill='url(#grads12)' />
+	<defs>
+		<linearGradient id="grads11" x1="6.6987298107781%" y1="75%" x2="93.301270189222%" y2="25%">
+			<stop offset="0%" style="stop-color:#002B00" />
+			<stop offset="100%" style="stop-color:#5C8F42" />
+		</linearGradient>
+		<linearGradient id="grads12" x1="6.6987298107781%" y1="75%" x2="93.301270189222%" y2="25%">
+			<stop offset="0%" style="stop-color:#784500" />
+			<stop offset="100%" style="stop-color:#DCA943" />
+		</linearGradient>
+	</defs>
+	<path d='M394.3,859.3 m-63,0 a 63,63 0,1 1,126,0 a 63,63,0,1,1,-126,0z' fill='url(#grads21)' />
+	<path d='M394.3,859.3 m-54,0 a 54,54 0,1 1,108,0 a 54,54,0,1,1,-108,0z' fill='url(#grads22)' />
+	<defs>
+		<linearGradient id="grads21" x1="6.6987298107781%" y1="75%" x2="93.301270189222%" y2="25%">
+			<stop offset="0%" style="stop-color:#230900" />
+			<stop offset="100%" style="stop-color:#876D3A" />
+		</linearGradient>
+		<linearGradient id="grads22" x1="6.6987298107781%" y1="75%" x2="93.301270189222%" y2="25%">
+			<stop offset="0%" style="stop-color:#238900" />
+			<stop offset="100%" style="stop-color:#87ED54" />
+		</linearGradient>
+	</defs>
+	<path d='M870.7,553.4 m-63,0 a 63,63 0,1 1,126,0 a 63,63,0,1,1,-126,0z' fill='url(#grads31)' />
+	<path d='M870.7,553.4 m-54,0 a 54,54 0,1 1,108,0 a 54,54,0,1,1,-108,0z' fill='url(#grads32)' />
+	<defs>
+		<linearGradient id="grads31" x1="6.6987298107781%" y1="75%" x2="93.301270189222%" y2="25%">
+			<stop offset="0%" style="stop-color:#4E0000" />
+			<stop offset="100%" style="stop-color:#B24B32" />
+		</linearGradient>
+		<linearGradient id="grads32" x1="6.6987298107781%" y1="75%" x2="93.301270189222%" y2="25%">
+			<stop offset="0%" style="stop-color:#00CD01" />
+			<stop offset="100%" style="stop-color:#32FF65" />
+		</linearGradient>
+	</defs>
+</svg>

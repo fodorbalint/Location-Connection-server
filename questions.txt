@@ -1,0 +1,134 @@
+What do the different listing options mean?
+
+- All: People you did not hide.
+- Undecided: Those you neither liked or hid.
+- Matches: When a like is mutual
+- Friends: You can add someone as a friend after you match with them.
+- Liked: Those you liked.
+- Liked by: People who liked you.
+- Hid: Users you hid.
+- Hid by: Users who hid you.
+Except from the list "Hid", people you hid are not shown.
+
+What do the icons mean?
+
+Long-press on them to reveal a hint.
+
+How to navigate through a profile's pictures?
+
+You can either swipe on it to move to the next or previous one, or tap the left / right half.
+When you reach the last picture, you can return to the start this way.  
+
+How does free text search work?
+
+Apart from finding someone by their name or username, you can search in descriptions too.
+Uses are not required to specify their age, but if they do, you can enter the age range for example 18-22 to find those who wrote 18, 19, 20, 21 or 22 about themselves.
+You can use the numbers alone, or combine with a text, like: 18-22 dog lover.
+Words are treated as one expression, and not separated into keywords.
+Number ranges are valid from 0 to 99.
+Only results of your selected sex preference will load in the chosen sorting order. Previously set geographical filters have no effect, and neither the list type you have set as a logged-in user. People you hid are still not shown.   
+
+How do I refresh the list?
+
+Besides changing the filtering options, you can pull down on the results, or tap the top-right icon of the geographical filters section.
+
+What is my level of privacy?
+
+Besides choosing whether you share your location and distance, the following facts apply:
+- Users will not know that you viewed their profiles.
+- They will know that you liked or hid them.
+- They will also see whether you have read their messages.
+
+Can I secretly like or hide others?
+
+Yes. You need to deactivate your account to do so, which means, you do not show up in searches. If you already got a like from someone, you can match with them, but they will only have access to your name and small profile picture.
+
+How is response rate calculated? 
+
+It is the ratio of how many users you have answered out of those who contacted you. You have 24 hours to do so from the time the message was sent before your response rate is affected. It is however reversible by answering an old message anytime, except if the user has unmatched you, or deleted their profiles; when you send the message, it is updated instantly.
+Matches who don't contact each other has no effect on the response rate.
+If you send a message first which you get a reply to, your both get a point.
+
+What is a friend?
+
+It is a one-way connection, which does not need accept from the other person. You can use it to share your location with selected people instead of all your matches.
+
+What is the difference between a Seen and a Read message?
+
+Messages are seen when someone saw them in their match list, and read when they are in the chat window with you.
+This information gets updated in real-time: you can see where the other person is by the kind of feedback you get.
+Also, if you are waiting to chat with someone, and you sent a message, you will see that it gets updated to first Seen and then Read as your partner enters the chat.   
+
+How do real-time location updates work?
+
+You can start location updates with someone in your chat page by opening the menu.
+The other person will then be notified, and if they go into your profile page, they will see your location change at regular intervals. It gets updated on the list view map too without them having to refresh the results.
+You can send updated to several people at a time, but they will only remain active as long as you are using the app.
+The frequency can be changed in settings; it has to be at most 60 seconds to start with.
+
+Is my location timeline visible to others?
+
+No, it is personal; the server only stores your newest location data.
+You can see your location of the last 24 hours, and it is tied to device, not user. (If you log in as another user, the history will remain.)
+Expect background updates to stop some time after closing the app, especially if your device is not on charger, but in-app updates should be constant.
+
+The profile I am looking at has a long name/username, and it gets truncated. How can I see it?
+
+Rotate your phone to give it more space. This also goes for the listing options if you have a device with small screen.
+
+Can I leave the registration page and finish it later?
+
+Yes, all your data is saved. Your uploaded pictures will however be deleted from the server after 24 hours.
+
+Recommended image dimensions?
+
+Your pictures are scaled to 1440 x 1440 px and 480 x 480 px if they exceed these dimesions. Maximum allowed file size is 20 MB.
+
+What happens if I press on the "Deactivate my account" button?
+
+A confirmation dialog will appear. If you approve, your profile will no longer be searchable by other users. Your match list will be inactive: you will not be able to send messages, and neither can your matches to you. You will however still be able to like or hide other people, and get a match.
+You matches will only see your name and small profile picture; they cannot go into your page.
+
+What happens if I press on the "Delete my account" button?
+
+A confirmation dialog will appear. If you approve, your data will be cleared from the database, and your pictures deleted. For those you had a conversation with, you will appear with a "User deleted" icon. They will still be able to see the conversation history unless they unmatch too.
+
+What happens to my chat history if someone unmatches me, or deletes their profile? 
+
+It remains unless you hide the person, or delete your profile. If you get a re-match, you can continue the conversation where you left off. Should you unlike the person too, the match will be deleted. 
+
+What does it mean to have an inactive (pink) match?
+
+There can be three reasons:
+- They have have unmatched you.
+- They have set their account inactive.
+- They have deleted their account.
+You can determine which is the case.
+Can you still see their pictures?
+Can you go into their profiles?
+If you unmatch from them, the conversation will disappear, and get permanently deleted, unless they have just been inactive, but kept the match status.
+
+'Can I report or block someone?
+' 
+'You can unmatch from someone, and add them to your hidden people list too. There is no direct "report" function implemented, as this project is intended to be able to run without human resources.
+'While it would be possible to review the reports on a low scale, if the number of users rise, there is no customer service to do that.
+'Instead, you can send a message below. 
+'
+'Are users moderated?
+' 
+'All are expected to have at least one picture of themselves, which is set as the first picture. Those who post inappropriate content may get warned by email, and should they fail to make changes within 24 hours, their profiles will be deleted.
+'
+How long is my data kept?
+ 
+There is a plan to keep the user base alive, so if you haven't been active for a year, your account will be deleted. You will receive a reminder via email well before the due date.
+Your chat history is otherwise kept forever within reasonable limits, up to 16 million characters.
+'
+'How can I customize the interface?
+'
+'The source code is availabe on https://github.com/fodorbalint/locationconnection to use it with Visual Studio.
+'In case you want to change some functions and create your own database of users, the server-side logic is also published.
+'Otherwise you are welcome to send me a feedback; the system is meant adapt to the needs of the users, and is not considered final when it is first published.
+'
+'Why is this app free?
+'
+'My personal budget can cover the cost of web hosting for now. Should the number of users rise, I will open up a channel for donations, or charge those who use the app beyond a certain extent. Lack of funding would equal to new registrations being cut off; all features will always remain free for the basic user.

@@ -1,0 +1,10 @@
+runtime: php73
+
+env_variables:
+    PROJECT_NAME: "locationconnection"
+    
+handlers:
+- url: /.*
+  script: auto
+  secure: always
+  redirect_http_response_code: 301                   
