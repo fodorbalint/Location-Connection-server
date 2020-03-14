@@ -3,5 +3,6 @@ phpMyAdmin
 sendgrid
 temp_uploads
 vendor
-AuthKey_29FQTQSV9N.p8
+AuthKey*.p8
 Connection.php
+mail.php
