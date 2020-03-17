@@ -120,7 +120,7 @@ If you unmatch from them, the conversation will disappear, and get permanently d
 '
 How long is my data kept?
  
-There is a plan to keep the user base alive, so if you haven't been active for a year, your account will be deleted. You will receive a reminder via email well before the due date.
+Depending on the number of users, and for keeping the database alive, those who haven't been active for a year may be deleted, but in such a case a reminder will be sent to your email well before due date.
 Your chat history is otherwise kept forever within reasonable limits, up to 16 million characters.
 '
 'How can I customize the interface?
