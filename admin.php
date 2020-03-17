@@ -97,15 +97,15 @@ function adminPage($Username) {
         if ($_GET["action"] != "changepassword" && $_GET["action"] != "logout" && $_GET["action"] != "resetautoincrement") {
             $tableName=$_GET["tableName"];
             if ($tableName == "admin" || $tableName=="log_admin") {
-                print "This table cannot be changed.";
+                print "ERROR:This table cannot be changed.";
                 return;
             }
         }         
         switch($_GET["action"]) {
             case "edit":
-                $ID=$_GET["ID"];
-                $Field=$_GET["Field"];
-                $Value=$_GET["Value"];
+                $ID=$_POST["ID"];
+                $Field=$_POST["Field"];
+                $Value=$_POST["Value"];
                 
                 if ($Value=="") $Value=null;
                 if (is_int($Value)) {

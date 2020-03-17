@@ -3174,7 +3174,10 @@ function sendmessage($ID, $MatchID, $message) {
     $stmt=&sqlselectbymany("select Chat, FirstID, SecondID, unix_timestamp(FirstLatestMessage), unix_timestamp(SecondLatestMessage) from matches where ID=? and (FirstID=? or SecondID=?)", array(array("i",$MatchID),array("i",$ID), array("i",$ID)));
     $stmt->store_result();
     $count=$stmt->num_rows;
-    if ($count==0) return "AUTHORIZATION_ERROR";
+    if ($count==0) {
+        $mysqli->query("unlock tables");
+        return "AUTHORIZATION_ERROR";
+    } 
     
     $stmt->bind_result($Chat, $FirstID, $SecondID, $FirstLatestMessage, $SecondLatestMessage);
     $stmt->fetch();
@@ -3188,6 +3191,7 @@ function sendmessage($ID, $MatchID, $message) {
     $stmt->free_result();
     
     if ($ActiveAccount == 0) {
+        $mysqli->query("unlock tables");
         return "ERROR_UserPassive";
     }
     

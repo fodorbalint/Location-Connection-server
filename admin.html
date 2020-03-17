@@ -681,30 +681,6 @@
         event.stopPropagation();
     }
     
-    function editValue(update) {
-        if (infoPanel.style.visibility == "visible") {
-            if (editField.style.visibility != "visible") {
-                editField.style.visibility="visible";
-                editField.value=selectedCell.innerText;
-                editButton.innerText="Done";
-                editField.focus();
-            }
-            else {            
-                if (update) {
-                    value=encodeURIComponent(editField.value);
-                    if (value.substring(value.length-3) == "%0A") { //for Safari, which puts a newline at the end of the text field
-                        value = value.substring(0, value.length - 3);
-                    }
-                    makeRequest("/admin?action=edit&tableName=" + thisTable + "&ID=" + rowID + "&Field=" + tbl.rows[0].cells[colNo].innerText + "&Value=" + value, 1);
-                }
-                else {
-                    editField.style.visibility="hidden";
-                    editButton.innerText="Edit value";
-                }
-            }
-        }
-    }
-    
     function hideContent() {
         if (infoPanel.firstChild.nodeName=="DIV") {
             infoPanel.removeChild(infoPanel.firstChild);
@@ -821,6 +797,30 @@
     function getIdByRow(i) {
         return tbl.rows[i].cells[1].innerText;
     }
+  
+    function editValue(update) {
+        if (infoPanel.style.visibility == "visible") {
+            if (editField.style.visibility != "visible") {
+                editField.style.visibility="visible";
+                editField.value=selectedCell.innerText;
+                editButton.innerText="Done";
+                editField.focus();
+            }
+            else {            
+                if (update) {
+                    value=encodeURIComponent(editField.value);
+                    if (value.substring(value.length-3) == "%0A") { //for Safari, which puts a newline at the end of the text field
+                        value = value.substring(0, value.length - 3);
+                    }
+                    makeRequest("/admin?action=edit&tableName=" + thisTable, 1, "&ID=" + rowID + "&Field=" + tbl.rows[0].cells[colNo].innerText + "&Value=" + value);
+                }
+                else {
+                    editField.style.visibility="hidden";
+                    editButton.innerText="Edit value";
+                }
+            }
+        }
+    }
     
     function deleteRow() {
         if (selectedIDs.length != 0) {
@@ -829,7 +829,10 @@
     }
     
     function emptyTable() {
-        makeRequest("/admin?action=empty&tableName=" + thisTable, 3);   
+        var r = confirm("Do you really want to empty this table?");
+        if (r) {
+            makeRequest("/admin?action=empty&tableName=" + thisTable, 3);
+        } 
     } 
     
     function resetAutoIncrement() {
