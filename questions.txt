@@ -12,7 +12,14 @@ Except from the list "Hid", people you hid are not shown.
 
 What do the icons mean?
 
-Long-press on them to reveal a hint.
+On Android, long-press on them to reveal a hint.
+On the main page these are the four main icons in the toolbar:
+- Filters
+- Search
+- Search list grid view
+- Search list map view
+Clicking on the bottom right icon (if you are logged in), you can view your matches.
+On the bottom of a profile page you can either like or hide the person, or view the next or previous profile.
 
 How to navigate through a profile's pictures?
 
@@ -23,9 +30,9 @@ How does free text search work?
 
 Apart from finding someone by their name or username, you can search in descriptions too.
 Uses are not required to specify their age, but if they do, you can enter the age range for example 18-22 to find those who wrote 18, 19, 20, 21 or 22 about themselves.
-You can use the numbers alone, or combine with a text, like: 18-22 dog lover.
+You can use the numbers alone, or combine with a text, like: "18-22 dog lover" (without quotes).
 Words are treated as one expression, and not separated into keywords.
-Number ranges are valid from 0 to 99.
+Number ranges are valid from 0 to 99, and you must enter both ends, so if you only want to search for profiles that contain the number 18 plus a search term, write "18-18 <your search term>". For finding only numbers, writing "18" will suffice.
 Only results of your selected sex preference will load in the chosen sorting order. Previously set geographical filters have no effect, and neither the list type you have set as a logged-in user. People you hid are still not shown.   
 
 How do I refresh the list?
@@ -34,20 +41,21 @@ Besides changing the filtering options, you can pull down on the results, or tap
 
 What is my level of privacy?
 
-Besides choosing whether you share your location and distance, the following facts apply:
+Besides choosing which groups you share your location and distance with, the following facts apply:
 - Users will not know that you viewed their profiles.
 - They will know that you liked or hid them.
 - They will also see whether you have read their messages.
 
 Can I secretly like or hide others?
 
-Yes. You need to deactivate your account to do so, which means, you do not show up in searches. If you already got a like from someone, you can match with them, but they will only have access to your name and small profile picture.
+Yes. You need to deactivate your account to do so, which means, you do not show up in their searches. If you already got a like from someone, you can match with them, but they will not be able to go to your profile page, only see your name and a small picture.
 
 How is response rate calculated? 
 
-It is the ratio of how many users you have answered out of those who contacted you. You have 24 hours to do so from the time the message was sent before your response rate is affected. It is however reversible by answering an old message anytime, except if the user has unmatched you, or deleted their profiles; when you send the message, it is updated instantly.
+It is the ratio of how many users you have answered out of those who contacted you. You have 24 hours to do so from the time the message was sent before your response rate is affected. It is however reversible by answering an old message anytime, except if the user has unmatched you, or deleted their profiles (You need to unmatch too in these cases.)
+When you send a message, it is updated instantly.
 Matches who don't contact each other has no effect on the response rate.
-If you send a message first which you get a reply to, your both get a point.
+If you send a message first which your partner replies to, your both get a point.
 
 What is a friend?
 
@@ -56,21 +64,29 @@ It is a one-way connection, which does not need accept from the other person. Yo
 What is the difference between a Seen and a Read message?
 
 Messages are seen when someone saw them in their match list, and read when they are in the chat window with you.
-This information gets updated in real-time: you can see where the other person is by the kind of feedback you get.
+This information gets updated in real-time: you can see which page the other person is on by the kind of feedback you get.
 Also, if you are waiting to chat with someone, and you sent a message, you will see that it gets updated to first Seen and then Read as your partner enters the chat.   
 
 How do real-time location updates work?
 
 You can start location updates with someone in your chat page by opening the menu.
 The other person will then be notified, and if they go into your profile page, they will see your location change at regular intervals. It gets updated on the list view map too without them having to refresh the results.
-You can send updated to several people at a time, but they will only remain active as long as you are using the app.
+You can send updates to several people at a time, but they will only remain active as long as you are using the app. Entering background will stop all location updates. The recipients will be notified.
 The frequency can be changed in settings; it has to be at most 60 seconds to start with.
+On iOS, locations sent this way will only be visible for your partner, and you still need to update your location on your profile page to make it available for others.
+On Android there is only one location information, and it gets updated automatically. 
 
 Is my location timeline visible to others?
 
 No, it is personal; the server only stores your newest location data.
 You can see your location of the last 24 hours, and it is tied to device, not user. (If you log in as another user, the history will remain.)
-Expect background updates to stop some time after closing the app, especially if your device is not on charger, but in-app updates should be constant.
+If you are using Android, Expect background updates to stop some time after closing the app, especially if your device is not on charger, but in-app updates should be constant.
+On iOS, background updates do not exist due to store policy.
+
+What do the list item colors mean in Location history?
+
+Android: green - in-app update, orange - background update
+iOS: green - in-app update which is not shared, pink - location data you sent by clicking the "Update location" button on your profile page
 
 The profile I am looking at has a long name/username, and it gets truncated. How can I see it?
 
@@ -78,7 +94,7 @@ Rotate your phone to give it more space. This also goes for the listing options 
 
 Can I leave the registration page and finish it later?
 
-Yes, all your data is saved. Your uploaded pictures will however be deleted from the server after 24 hours.
+Yes, all your data is saved. Your uploaded pictures may however be deleted from the server after 24 hours.
 
 Recommended image dimensions?
 
@@ -95,7 +111,7 @@ A confirmation dialog will appear. If you approve, your data will be cleared fro
 
 What happens to my chat history if someone unmatches me, or deletes their profile? 
 
-It remains unless you hide the person, or delete your profile. If you get a re-match, you can continue the conversation where you left off. Should you unlike the person too, the match will be deleted. 
+It remains unless you hide the person, or delete your profile. If you get a re-match, you can continue the conversation where you left off. Should you unmatch the person too, the match will be deleted. 
 
 What does it mean to have an inactive (pink) match?
 
@@ -103,21 +119,18 @@ There can be three reasons:
 - They have have unmatched you.
 - They have set their account inactive.
 - They have deleted their account.
-You can determine which is the case.
+You can determine which is the case:
 Can you still see their pictures?
 Can you go into their profiles?
 If you unmatch from them, the conversation will disappear, and get permanently deleted, unless they have just been inactive, but kept the match status.
 
-'Can I report or block someone?
-' 
-'You can unmatch from someone, and add them to your hidden people list too. There is no direct "report" function implemented, as this project is intended to be able to run without human resources.
-'While it would be possible to review the reports on a low scale, if the number of users rise, there is no customer service to do that.
-'Instead, you can send a message below. 
-'
-'Are users moderated?
-' 
-'All are expected to have at least one picture of themselves, which is set as the first picture. Those who post inappropriate content may get warned by email, and should they fail to make changes within 24 hours, their profiles will be deleted.
-'
+Can I report or block someone?
+ 
+Yes, on iOS this is implemented. Tap the 3 black dots on a profile page to show the menu, or find the same functions in a chat window's menu.
+A confirmation dialog will appear if you select one.
+If you report someone, I will review it within 24 hours, and take necessary action.
+Blocking a user will permanently hides them while you are logged into your account; you cannot even find them in your hidden people list. If it was a match, you now automatically unmatch from them too.
+
 How long is my data kept?
  
 Depending on the number of users, and for keeping the database alive, those who haven't been active for a year may be deleted, but in such a case a reminder will be sent to your email well before due date.

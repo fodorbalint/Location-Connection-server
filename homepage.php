@@ -140,6 +140,7 @@ const NEWMESSAGEFROM="New message from";
 const YOUMATCHEDWITH="You matched with";
 const YOUREMATCHEDWITH="You re-matched with";
 const YOUUNMATCHEDFROM="unmatched you.";
+const BLOCKEDYOU="blocked you.";
 $monthlyGeocodingAllowance=40000;
 $maxLogLength=1024;
 $homeLogLength=255;
@@ -176,6 +177,46 @@ if (isset($_GET["action"])) {
         else { //non-registered users
             $result=reportError($ID,$content);    
         }    
+    }
+    else if ($_GET["action"] == "reportprofileview") {
+        $ID=$_GET["ID"];
+        $sessionid=$_GET["SessionID"];
+        if (authSession($ID,$sessionid)) {            
+            $result=reportuser($ID, $_GET["TargetID"]);
+        }
+        else {
+            $result="AUTHORIZATION_ERROR";
+        }
+    }
+    else if ($_GET["action"] == "reportchatone") {
+        $ID=$_GET["ID"];
+        $sessionid=$_GET["SessionID"];
+        if (authSession($ID,$sessionid)) {            
+            $result=reportmatch($ID, $_GET["TargetID"], $_GET["MatchID"]);
+        }
+        else {
+            $result="AUTHORIZATION_ERROR";
+        }
+    }
+    else if ($_GET["action"] == "blockprofileview") {
+        $ID=$_GET["ID"];
+        $sessionid=$_GET["SessionID"];
+        if (authSession($ID,$sessionid)) {            
+            $result=blockuser($ID, $_GET["TargetID"], $_GET["time"]);
+        }
+        else {
+            $result="AUTHORIZATION_ERROR";
+        }
+    }
+    else if ($_GET["action"] == "blockchatone") {
+        $ID=$_GET["ID"];
+        $sessionid=$_GET["SessionID"];
+        if (authSession($ID,$sessionid)) {            
+            $result=blockuser($ID, $_GET["TargetID"], $_GET["time"]);
+        }
+        else {
+            $result="AUTHORIZATION_ERROR";
+        }
     }
     else if ($_GET["action"] == "helpcenter") {
         $result=getQuestions();
@@ -376,6 +417,19 @@ if (isset($_GET["action"])) {
         $time=$_GET["LocationTime"];
         if (authSession($ID,$sessionid)) {
             $result=updateLocation($ID,$latitude,$longitude,$time);
+        }
+        else {
+            $result="AUTHORIZATION_ERROR";
+        }              
+    }
+    else if ($_GET["action"] == "updatelocationmatch") {
+        $ID=$_GET["ID"];
+        $sessionid=$_GET["SessionID"];
+        $latitude=$_GET["Latitude"];
+        $longitude=$_GET["Longitude"];
+        $time=$_GET["LocationTime"];
+        if (authSession($ID,$sessionid)) {
+            $result=updateLocationMatch($ID,$latitude,$longitude,$time);
         }
         else {
             $result="AUTHORIZATION_ERROR";
@@ -596,7 +650,13 @@ if (isset($_GET["action"])) {
         else {
             $result="AUTHORIZATION_ERROR";
         }    
-    }      
+    } 
+    else if ($_GET["action"]=="eula") {
+        $text=file_get_contents("eula.html");  
+        $link="https://locationconnection.me/?page=legal#terms"; 
+        $text=str_replace("[link]","on <a href=\"$link\">$link</a>",$text);
+        $result="OK;$text";
+    }   
     else {
         MainPage("home");
     }
@@ -645,8 +705,8 @@ else if (isset($_GET["page"])) {
         case "helpcenter":
             MainPage("helpcenter");
             break;
-        case "privacy":
-            MainPage("privacy");
+        case "legal":
+            MainPage("legal");
             break;
     } 
 }
@@ -718,6 +778,9 @@ function MainPage($page, $result="") {
         $stmt->close();
         $content=str_replace("[questions]",$str,$content);
     }
+    else if ($page == "legal") {
+        $content=str_replace("[eula]",str_replace("[link]", "here", file_get_contents("eula.html")),$content);
+    }
     
     $frame=str_replace("[content]",$content,$frame);
     
@@ -752,6 +815,157 @@ function insertError($content, $ID=0) {
         "Content"=>array("s",$content),
         "IP"=>array("s",$userip)
     ),false);
+}
+
+function reportuser($ID, $target) {
+    $stmt=&sqlselectbymany("select ID from matches where (FirstID=? and SecondID=?) or (FirstID=? and SecondID=?)", array(array("i",$ID), array("i",$target), array("i",$target), array("i",$ID)));
+    $stmt->store_result();
+    $count=$stmt->num_rows;
+    
+    $match=null;
+    if ($count != 0) {
+        $stmt->bind_result($match);
+        $stmt->fetch();
+        $stmt->free_result();
+    }
+
+    list($Username, $TargetUsername)=insertReport($ID, $target, $match);
+    
+    require("mail.php");
+    $res=sendMail("Reported user", "$Username ($ID) => $TargetUsername ($target)" . (($match !== null)?", MatchID: $match":""));
+    if ($res !== true) {
+        insertError($res, $ID);
+    } 
+    return "OK";
+}
+
+function reportmatch($ID, $target, $match) {
+    list($Username, $TargetUsername)=insertReport($ID, $target, $match);
+    
+    require("mail.php");
+    $res=sendMail("Reported match", "$Username ($ID) => $TargetUsername ($target), MatchID: $match");
+    if ($res !== true) {
+        insertError($res, $ID);
+    } 
+    return "OK";
+}
+
+function insertReport($ID, $target, $match) {
+    global $userip;
+
+    //usernames can change, but getting it now makes lookup easier
+    $stmt=&sqlselect("select Username from profiledata where ID=?", array("i",$ID));
+    $stmt->bind_result($Username);
+    $stmt->fetch();
+    $stmt->free_result();
+
+    $stmt=&sqlselect("select Username from profiledata where ID=?", array("i",$target));
+    $stmt->bind_result($TargetUsername);
+    $stmt->fetch();
+    $stmt->free_result();
+
+    sqlinsert("reports",array(
+        "Time"=>array("s",date("Y-m-d H:i:s",time())),
+        "UserID"=>array("i",$ID),
+        "Username"=>array("s",$Username),
+        "TargetID"=>array("i",$target),
+        "TargetUsername"=>array("s",$TargetUsername),
+        "MatchID"=>array("i",$match),
+        "IP"=>array("s",$userip)
+    ),false);
+
+    return array($Username, $TargetUsername);
+}
+
+function blockuser($ID, $target, $time) {
+    global $mysqli;
+
+    //check if it is an active or passive match
+    $stmt=&sqlselectbymany("select ID, Active, UnmatchInitiator from matches where (FirstID=? and SecondID=?) or (FirstID=? and SecondID=?)", array(array("i",$ID), array("i",$target), array("i",$target), array("i",$ID)));
+    $stmt->store_result();
+    $count=$stmt->num_rows;
+    if ($count != 0) {
+        $stmt->bind_result($MatchID, $Active, $UnmatchInitiator);
+        $stmt->fetch();
+        $stmt->free_result();
+
+        if ($UnmatchInitiator == $target) {
+            sqldelete("matches", array("ID" => array("i",$MatchID)));
+        }
+        else {
+            $unmatchDate=date("Y-m-d H:i:s",$time);
+            sqlexecuteparams("update matches set Active=0, UnmatchDate=?, UnmatchInitiator=? where (FirstID=? and SecondID=?) or (FirstID=? and SecondID=?)",
+        array(array("s", $unmatchDate), array("i",$ID), array("i",$target), array("i",$ID), array("i",$ID), array("i",$target)));
+            
+            $stmt=&sqlselectbymany("select Token, iOS, UnmatchInApp, UnmatchBackground from session, profilesettings where session.ID = ? and profilesettings.ID = ?", array(array("i",$target), array("i",$target)));
+            $stmt->bind_result($token, $ios, $UnmatchInApp, $UnmatchBackground);
+            $stmt->fetch();
+            $stmt->free_result();
+            
+            $stmt=&sqlselect("select Name from profiledata where ID=?", array("i",$ID));
+            $stmt->bind_result($TargetName);
+            $stmt->fetch();
+            $stmt->free_result();
+            
+            //location updates are stopped within the app
+            sendCloud($ID, $token, $ios, $UnmatchBackground, $UnmatchInApp, "$TargetName ".YOUUNMATCHEDFROM, null, "unmatchProfile", "$MatchID|$time");
+        }
+    }
+
+    $mysqli->query("lock tables likehide write");
+
+    //remove the initiator's like from their likes and the target's likedby. Remove friend, friendby from the source and target ID
+    $stmt=&sqlselect("select Likes, Friends, FriendsBy from likehide where ID=?", array("i",$ID));
+    $stmt->bind_result($Likes, $Friends, $FriendsBy);
+    $stmt->fetch(); 
+    $stmt->free_result();
+    
+    removeLikeHideItem($Likes,$target);
+    removeLikeHideItem($Friends,$target);
+    removeLikeHideItem($FriendsBy,$target);
+    
+    sqlupdate("likehide", array("Likes" => array("s",$Likes), "Friends"=>array("s",$Friends), "FriendsBy"=>array("s",$FriendsBy)), array("ID" => array("i",$ID)));
+    
+    $stmt=&sqlselect("select LikedBy, Friends, FriendsBy from likehide where ID=?", array("i",$target));
+    $stmt->bind_result($LikedBy, $Friends, $FriendsBy);
+    $stmt->fetch(); 
+    $stmt->free_result();
+    
+    removeLikeHideItem($LikedBy,$ID);
+    removeLikeHideItem($Friends,$ID);
+    removeLikeHideItem($FriendsBy,$ID);
+    
+    sqlupdate("likehide", array("LikedBy" => array("s",$LikedBy), "Friends"=>array("s",$Friends), "FriendsBy"=>array("s",$FriendsBy)), array("ID" => array("i",$target)));
+
+    //check if block exists and update it. Block should not exist, unless HTTP query is repeated
+    $stmt=&sqlselect("select Blocks from likehide where ID=?", array("i",$ID));
+    $stmt->bind_result($Blocks);
+    $stmt->fetch(); 
+    $stmt->free_result();
+
+    $targetblockexists=existsLikeHideItem($Blocks, $target);
+
+    if (!$targetblockexists) {
+        addLikeHideItemUpdate("Blocks",$Blocks,$target,$time,$ID);
+
+        $stmt=&sqlselect("select BlockedBy from likehide where ID=?", array("i",$target));
+        $stmt->bind_result($BlockedBy);
+        $stmt->fetch(); 
+        $stmt->free_result();
+        
+        addLikeHideItemUpdate("BlockedBy",$BlockedBy,$ID,$time,$target);
+        
+        $mysqli->query("unlock tables");
+        $stmt->close();
+
+        return "OK";
+    }
+    else {
+        $mysqli->query("unlock tables");
+        $stmt->close();
+
+        return "Error: Block already exists.";
+    }
 }
 
 function getQuestions() {
@@ -1616,14 +1830,18 @@ function loadList($ID=0) {
         $hidbyids=array();
         $friendids=array(); 
         $friendbyids=array();
+        $blockids=array(); 
         
-        getRelations($ID, $targetMatches, $likeids, $likedbyids, $hideids, $hidbyids, $friendids, $friendbyids);
+        getRelations($ID, $targetMatches, $likeids, $likedbyids, $hideids, $hidbyids, $friendids, $friendbyids, $blockids);
         
         switch ($_GET["ListType"]) {
             case "public":
                 $conditions="where profiledata.ID != ? and";
                 foreach ($hideids as $hideid) {
                     $conditions.=" profiledata.ID != $hideid and";
+                } 
+                foreach ($blockids as $blockid) {
+                    $conditions.=" profiledata.ID != $blockid and";
                 }                        
                 $sqlbase=str_replace("where",$conditions,$sqlbase); 
                 $sqlbasecount=str_replace("where",$conditions,$sqlbasecount);
@@ -1666,7 +1884,10 @@ function loadList($ID=0) {
                 }
                 foreach ($hideids as $hideid) {
                     $conditions.=" profiledata.ID != $hideid and";
-                }                        
+                }
+                foreach ($blockids as $blockid) {
+                    $conditions.=" profiledata.ID != $blockid and";
+                }                         
                 $sqlbase=str_replace("where",$conditions,$sqlbase); 
                 $sqlbasecount=str_replace("where",$conditions,$sqlbasecount);
                 
@@ -1771,11 +1992,14 @@ function loadList($ID=0) {
                     }
                     $conditions=substr($conditions, 0, strlen($conditions)-4).") and"; 
                     
-                    if (count($hideids) != 0) {
+                    if (count($hideids) != 0 || count($blockids) != 0) {
                         $conditions.=" (";
                         foreach ($hideids as $hideid) {
                             $conditions.="profiledata.ID != $hideid and ";
                         }
+                        foreach ($blockids as $blockid) {
+                            $conditions.="profiledata.ID != $blockid and ";
+                        } 
                         $conditions=substr($conditions, 0, strlen($conditions)-4).") and";
                     }
                                           
@@ -1851,11 +2075,14 @@ function loadList($ID=0) {
                     }
                     $conditions=substr($conditions, 0, strlen($conditions)-4).") and";
                     
-                    if (count($hideids) != 0) {
+                    if (count($hideids) != 0 || count($blockids) != 0) {
                         $conditions.=" (";
                         foreach ($hideids as $hideid) {
                             $conditions.="profiledata.ID != $hideid and ";
                         }
+                        foreach ($blockids as $blockid) {
+                            $conditions.="profiledata.ID != $blockid and ";
+                        } 
                         $conditions=substr($conditions, 0, strlen($conditions)-4).") and";
                     }
                     
@@ -2050,7 +2277,7 @@ function loadListSearch($ID=0) {
         }
     }    
     $condition=substr($condition,0,strlen($condition)-4).") and";
-    
+
     $sqlbase=" from profiledata, profilesettings where $condition profiledata.ID = profilesettings.ID and profilesettings.ActiveAccount = 1 order by $sortBy $orderBy";
     $sqllimit=" limit ?, $maxResultCount";
     
@@ -2074,13 +2301,17 @@ function loadListSearch($ID=0) {
         $hidbyids=array();
         $friendids=array(); 
         $friendbyids=array();
+        $blockids=array(); 
         
-        getRelations($ID, $targetMatches, $likeids, $likedbyids, $hideids, $hidbyids, $friendids, $friendbyids);
+        getRelations($ID, $targetMatches, $likeids, $likedbyids, $hideids, $hidbyids, $friendids, $friendbyids, $blockids);
         
         $conditions="where profiledata.ID != ? and";
         foreach ($hideids as $hideid) {
             $conditions.=" profiledata.ID != $hideid and";
-        }                        
+        }
+        foreach ($blockids as $blockid) {
+            $conditions.=" profiledata.ID != $blockid and";
+        }                          
         $sqlbase=str_replace("where",$conditions,$sqlbase);
          
         array_unshift($params, array("i",$ID));
@@ -2145,6 +2376,7 @@ function loadListSearch($ID=0) {
         
         $paramsCount=$params;
         array_push($params, array("i",$resultsFrom));
+
         $stmt=&sqlselectbymany($sqlfields.$sqlbase.$sqllimit, $params);
         $str="";
         $res=$stmt->get_result();
@@ -2181,9 +2413,9 @@ function loadListSearch($ID=0) {
     return "OK;$resultCount|$str";
 }
 
-function getRelations($ID, &$targetMatches, &$likeids, &$likedbyids, &$hideids, &$hidbyids, &$friendids, &$friendbyids) {
-    $stmt=&sqlselect("select Likes, LikedBy, Hides, HidBy, Friends, FriendsBy from likehide where ID=?", array("i",$ID));
-    $stmt->bind_result($Likes, $LikedBy, $Hides, $HidBy, $Friends, $FriendsBy);
+function getRelations($ID, &$targetMatches, &$likeids, &$likedbyids, &$hideids, &$hidbyids, &$friendids, &$friendbyids, &$blockids) {
+    $stmt=&sqlselect("select Likes, LikedBy, Hides, HidBy, Friends, FriendsBy, Blocks from likehide where ID=?", array("i",$ID));
+    $stmt->bind_result($Likes, $LikedBy, $Hides, $HidBy, $Friends, $FriendsBy, $Blocks);
     $stmt->fetch(); 
     $stmt->free_result();
      
@@ -2246,6 +2478,14 @@ function getRelations($ID, &$targetMatches, &$likeids, &$likedbyids, &$hideids, 
         foreach ($friendbyarr as $friendby) {
             $arr=explode(":",$friendby);
             $friendbyids[]=$arr[0];
+        }
+    }
+
+    if ($Blocks != "") {
+        $blockarr=explode("|",$Blocks);         
+        foreach ($blockarr as $block) {
+            $arr=explode(":",$block);
+            $blockids[]=$arr[0];
         }
     }
 }
@@ -2527,6 +2767,31 @@ function updateLocation($ID, $Latitude, $Longitude, $time) {
                 
                 sendCloud($ID, $token, $ios, false, true, null, null, "locationUpdate", "$TargetName|".$_GET["Frequency"]."|$time|$Latitude|$Longitude");
             }
+        }
+    }
+    return "OK";
+}
+
+function updateLocationMatch($ID, $Latitude, $Longitude, $time) { //no location update, sending it to match(es) only    
+    $stmt=&sqlselect("select Name from profiledata where ID=?", array("i",$ID));
+    $stmt->bind_result($TargetName);
+    $stmt->fetch();
+    $stmt->free_result();
+    
+    $arr=explode("|",$_GET["LocationUpdates"]);     
+    foreach ($arr as $targetID) {
+        //verify this is a match
+        $stmt=&sqlselectbymany("select ID from matches where (FirstID = $ID and SecondID = ?) or (FirstID = ? and SecondID = $ID)",
+        array( array("i",$targetID), array("i",$targetID) ));
+        $stmt->store_result();
+        if ($stmt->num_rows == 1) {
+            $stmt->free_result();
+            $stmt=&sqlselect("select Token, iOS from session where ID = ?", array("i",$targetID));
+            $stmt->bind_result($token, $ios);
+            $stmt->fetch();
+            $stmt->free_result();
+            
+            sendCloud($ID, $token, $ios, false, true, null, null, "locationUpdate", "$TargetName|".$_GET["Frequency"]."|$time|$Latitude|$Longitude");
         }
     }
     return "OK";
@@ -2909,7 +3174,7 @@ function deleteAccount($ID) {
         updateLocationEnd($ID);
     }
     
-    //delete record where other party already unmatched
+    //delete records where other party already unmatched
     sqlexecuteparams("delete from matches where (FirstID=? or SecondID=?) and UnmatchInitiator is not null and UnmatchInitiator != ?", array(array("i",$ID), array("i",$ID), array("i",$ID)));
     
     //unmatch from all matches
@@ -3098,7 +3363,11 @@ function loadmessages($ID, $MatchID, $TargetID) {
         $stmt->bind_result($match, $Active, $MatchDate, $UnmatchDate, $Chat, $Sex, $TargetUsername, $TargetName, $TargetPictures, $ActiveAccount, $Friends);
         $stmt->fetch();
         $stmt->close();
-        //UnmatchInitiator is not needed, it is not possible to unmatch from someone before clicking on the message notification (it will disappear when the app opens), unless they unmatch from another device, but then they are logged out of here.        
+        //UnmatchInitiator is not needed, it is not possible to unmatch from someone before clicking on the message notification (it will disappear when the app opens), unless they unmatch from another device, but then they are logged out of here.
+
+        if ($match == null) { //user deleted itself while the other was on its standalone page, and now loading chat. Chat remains, but userid does not exist anymore. 
+            return "ERROR_MatchNotFound";
+        }        
     }
     
     if ($Chat != null) { //Update read time
@@ -3145,19 +3414,14 @@ function loadmessages($ID, $MatchID, $TargetID) {
     $Friend=($targetexists)?"True":"False";
     $Active=($Active==1)?"True":"False";
     $ActiveAccount=($ActiveAccount==1)?"True":"False";
-    
+
     if ($MatchID != null) {
         return "OK;{Sex:$Sex,Active:$Active,MatchDate:$MatchDate,UnmatchDate:$UnmatchDate,Chat:\"$Chat\",ActiveAccount:$ActiveAccount,Friend:$Friend}";
     }
     else {
-        if ($match == null) { //user deleted itself while the other was on its standalone page, and now loading chat.
-            return "ERROR_MatchNotFound";
-        }
-        else {
-            $arr=explode("|",$TargetPictures);
-            $TargetPicture=$arr[0];
-            return "OK;{MatchID:$match,Active:$Active,MatchDate:$MatchDate,UnmatchDate:$UnmatchDate,Chat:\"$Chat\",Sex:$Sex,TargetID:$TargetID,TargetUsername:\"$TargetUsername\",TargetName:\"$TargetName\",TargetPicture:\"$TargetPicture\",ActiveAccount:$ActiveAccount,Friend:$Friend}";
-        }
+        $arr=explode("|",$TargetPictures);
+        $TargetPicture=$arr[0];
+        return "OK;{MatchID:$match,Active:$Active,MatchDate:$MatchDate,UnmatchDate:$UnmatchDate,Chat:\"$Chat\",Sex:$Sex,TargetID:$TargetID,TargetUsername:\"$TargetUsername\",TargetName:\"$TargetName\",TargetPicture:\"$TargetPicture\",ActiveAccount:$ActiveAccount,Friend:$Friend}";
     }
 }
 
