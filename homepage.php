@@ -908,7 +908,7 @@ function blockuser($ID, $target, $time) {
             $stmt->free_result();
             
             //location updates are stopped within the app
-            sendCloud($ID, $token, $ios, $UnmatchBackground, $UnmatchInApp, "$TargetName ".YOUUNMATCHEDFROM, null, "unmatchProfile", "$MatchID|$time");
+            sendCloud($ID, $target, $token, $ios, $UnmatchBackground, $UnmatchInApp, "$TargetName ".YOUUNMATCHEDFROM, null, "unmatchProfile", "$MatchID|$time");
         }
     }
 
@@ -2153,7 +2153,7 @@ function loadList($ID=0) {
                 }
                 else {
                     if (!isset($row["Distance"])) {
-                        if ($latitude != null && $longitude != null) {
+                        if ($latitude != null && $longitude != null && $row["Latitude"] != null && $row["Longitude"] != null) {
                             $row["Distance"]=calculateDistance($latitude,$longitude,$row["Latitude"],$row["Longitude"]);
                         }
                         else {
@@ -2389,7 +2389,7 @@ function loadListSearch($ID=0) {
                     $row["Distance"]=null; 
                 }
                 else {
-                    if ($latitude != null && $longitude != null) {
+                    if ($latitude != null && $longitude != null && $row["Latitude"] != null && $row["Longitude"] != null) {
                         $row["Distance"]=calculateDistance($latitude,$longitude,$row["Latitude"],$row["Longitude"]);
                     }
                     else {
@@ -2519,7 +2519,7 @@ function reverseRelation (&$row, $likedbyids, $targetMatches, $friendbyids, $lat
         switch($row["DistanceShare"]) { //locationtime is used for distance even if the user is not sharing location
             case 4:
                 if (!isset($row["Distance"])) {
-                    if ($latitude != null && $longitude != null) {
+                    if ($latitude != null && $longitude != null && $row["Latitude"] != null && $row["Longitude"] != null) {
                         $row["Distance"]=calculateDistance($latitude,$longitude,$row["Latitude"],$row["Longitude"]);
                     }
                 }
@@ -2530,7 +2530,7 @@ function reverseRelation (&$row, $likedbyids, $targetMatches, $friendbyids, $lat
             case 3:
                 if (in_array($resultID,$likedbyids)) {
                     if (!isset($row["Distance"])) {
-                        if ($latitude != null && $longitude != null) {
+                        if ($latitude != null && $longitude != null && $row["Latitude"] != null && $row["Longitude"] != null) {
                             $row["Distance"]=calculateDistance($latitude,$longitude,$row["Latitude"],$row["Longitude"]);
                         }
                     }
@@ -2545,7 +2545,7 @@ function reverseRelation (&$row, $likedbyids, $targetMatches, $friendbyids, $lat
             case 2:
                 if (in_array($resultID,$targetMatches)) {
                     if (!isset($row["Distance"])) {
-                        if ($latitude != null && $longitude != null) {
+                        if ($latitude != null && $longitude != null && $row["Latitude"] != null && $row["Longitude"] != null) {
                             $row["Distance"]=calculateDistance($latitude,$longitude,$row["Latitude"],$row["Longitude"]);
                         }
                     }
@@ -2560,7 +2560,7 @@ function reverseRelation (&$row, $likedbyids, $targetMatches, $friendbyids, $lat
             case 1:
                 if (in_array($resultID,$friendbyids)) {
                     if (!isset($row["Distance"])) {
-                        if ($latitude != null && $longitude != null) {
+                        if ($latitude != null && $longitude != null && $row["Latitude"] != null && $row["Longitude"] != null) {
                             $row["Distance"]=calculateDistance($latitude,$longitude,$row["Latitude"],$row["Longitude"]);
                         }
                     }
@@ -2610,13 +2610,13 @@ function reverseRelationStandalone(&$row, $friendbyids, $latitude, $longitude) {
     $resultID=$row["ID"];
     if ($row["UseLocation"]!=0) { //we already null-ed the location data on profile update
         if ($row["DistanceShare"] > 1) { //shares location with matches
-            if ($latitude != null && $longitude != null) {
+            if ($latitude != null && $longitude != null && $row["Latitude"] != null && $row["Longitude"] != null) {
                 $row["Distance"]=calculateDistance($latitude,$longitude,$row["Latitude"],$row["Longitude"]);
             }
         }
         else if ($row["DistanceShare"] == 1) { //only with friends
             if (in_array($resultID,$friendbyids)) {
-                if ($latitude != null && $longitude != null) {
+                if ($latitude != null && $longitude != null && $row["Latitude"] != null && $row["Longitude"] != null) {
                     $row["Distance"]=calculateDistance($latitude,$longitude,$row["Latitude"],$row["Longitude"]);
                 }
             }
@@ -2765,7 +2765,7 @@ function updateLocation($ID, $Latitude, $Longitude, $time) {
                 $stmt->fetch();
                 $stmt->free_result();
                 
-                sendCloud($ID, $token, $ios, false, true, null, null, "locationUpdate", "$TargetName|".$_GET["Frequency"]."|$time|$Latitude|$Longitude");
+                sendCloud($ID, $targetID, $token, $ios, false, true, null, null, "locationUpdate", "$TargetName|".$_GET["Frequency"]."|$time|$Latitude|$Longitude");
             }
         }
     }
@@ -2791,7 +2791,7 @@ function updateLocationMatch($ID, $Latitude, $Longitude, $time) { //no location 
             $stmt->fetch();
             $stmt->free_result();
             
-            sendCloud($ID, $token, $ios, false, true, null, null, "locationUpdate", "$TargetName|".$_GET["Frequency"]."|$time|$Latitude|$Longitude");
+            sendCloud($ID, $targetID, $token, $ios, false, true, null, null, "locationUpdate", "$TargetName|".$_GET["Frequency"]."|$time|$Latitude|$Longitude");
         }
     }
     return "OK";
@@ -2816,7 +2816,7 @@ function updateLocationEnd($ID) {
             $stmt->fetch();
             $stmt->free_result();
             
-            sendCloud($ID, $token, $ios, false, true, null, null, "locationUpdateEnd", "$TargetName");
+            sendCloud($ID, $targetID, $token, $ios, false, true, null, null, "locationUpdateEnd", "$TargetName");
         }
     }
     return "OK";
@@ -2872,7 +2872,7 @@ function likeProfile($ID, $target, $time) {
                 $Active=($ActiveAccount==1)?"True":"False";
                 $ActiveAccountStr=($ActiveAccount==1)?"True":"False";
                 
-                sendCloud($ID, $token, $ios, $MatchBackground, $MatchInApp, YOUMATCHEDWITH." $TargetName.", null, "matchProfile", "{MatchID:$MatchID,Active:$Active,MatchDate:$time,UnmatchDate:,Chat:,TargetID:$ID,TargetUsername:\\\"$TargetUsername\\\",TargetName:\\\"$TargetName\\\",TargetPicture:\\\"$TargetPicture\\\",ActiveAccount:$ActiveAccountStr}");
+                sendCloud($ID, $target, $token, $ios, $MatchBackground, $MatchInApp, YOUMATCHEDWITH." $TargetName.", null, "matchProfile", "{MatchID:$MatchID,Active:$Active,MatchDate:$time,UnmatchDate:,Chat:,TargetID:$ID,TargetUsername:\\\"$TargetUsername\\\",TargetName:\\\"$TargetName\\\",TargetPicture:\\\"$TargetPicture\\\",ActiveAccount:$ActiveAccountStr}");
             }
             else {
                 $stmt->bind_result($MatchID);
@@ -2896,7 +2896,7 @@ function likeProfile($ID, $target, $time) {
                 
                 $Active=($ActiveAccount==1)?"True":"False";
                 
-                sendCloud($ID, $token, $ios, $RematchBackground, $RematchInApp, YOUREMATCHEDWITH." $TargetName.", null, "rematchProfile", "$MatchID|$Active");
+                sendCloud($ID, $target, $token, $ios, $RematchBackground, $RematchInApp, YOUREMATCHEDWITH." $TargetName.", null, "rematchProfile", "$MatchID|$Active");
             }
         }
         
@@ -2993,7 +2993,7 @@ function unmatchProfile($ID, $target, $time) {
         $stmt->fetch();
         $stmt->free_result();
         
-        sendCloud($ID, $token, $ios, $UnmatchBackground, $UnmatchInApp, "$TargetName ".YOUUNMATCHEDFROM, null, "unmatchProfile", "$MatchID|$time");
+        sendCloud($ID, $target, $token, $ios, $UnmatchBackground, $UnmatchInApp, "$TargetName ".YOUUNMATCHEDFROM, null, "unmatchProfile", "$MatchID|$time");
     }
     
     $mysqli->query("lock tables likehide write");
@@ -3028,7 +3028,7 @@ function unmatchProfile($ID, $target, $time) {
 function hideProfile($ID, $target, $time) {
     global $mysqli;
     
-    $stmt=&sqlselectbymany("select ID from matches where (FirstID=? and SecondID=?) or (FirstID=? and SecondID=?)", array(array("i",$ID), array("i",$target), array("i",$target), array("i",$ID)));
+    $stmt=&sqlselectbymany("select ID from matches where ((FirstID=? and SecondID=?) or (FirstID=? and SecondID=?)) and UnmatchInitiator!=?", array(array("i",$ID), array("i",$target), array("i",$target), array("i",$ID), array("i",$ID)));
     $stmt->store_result();
     $count=$stmt->num_rows;
     if ($count != 0) {
@@ -3344,7 +3344,7 @@ function loadmessagelist($ID) {
         $stmt->fetch();
         $stmt->close();
         
-        sendCloud($ID, $token, $ios, false, true, null, null, "loadMessageList", $clouddata);
+        sendCloud($ID, $senderID, $token, $ios, false, true, null, null, "loadMessageList", $clouddata);
     }
     
     return "OK;$result";
@@ -3397,7 +3397,7 @@ function loadmessages($ID, $MatchID, $TargetID) {
             $stmt->fetch();
             $stmt->close();
             
-            sendCloud($ID, $token, $ios, false, true, null, null, "loadMessages", $clouddata);
+            sendCloud($ID, $senderID, $token, $ios, false, true, null, null, "loadMessages", $clouddata);
         }
     }
     $targetexists=false;
@@ -3502,7 +3502,7 @@ function sendmessage($ID, $MatchID, $message) {
     $stmt->fetch();
     $stmt->close();
    
-    sendCloud($ID, $token, $ios, $MessageBackground, $MessageInApp, NEWMESSAGEFROM." $targetName", $message, "sendMessage", $messageMeta);
+    sendCloud($ID, $targetID, $token, $ios, $MessageBackground, $MessageInApp, NEWMESSAGEFROM." $targetName", $message, "sendMessage", $messageMeta);
     
     return "OK;$nextID|$time|$newRate";
 }
@@ -3578,7 +3578,7 @@ function messagedelivered($ID, $MatchID, $messageID, $Status) {
     $stmt->fetch();
     $stmt->close();
     
-    sendCloud($ID, $token, $ios, false, true, null, null, "messageDelivered", $clouddata);
+    sendCloud($ID, $senderID, $token, $ios, false, true, null, null, "messageDelivered", $clouddata);
     return "OK";
 }
 
@@ -3850,32 +3850,11 @@ function formatTime($intervalSeconds) {
     return $str; 
 }
 
-function sendCloud($from, $to, $ios, $isBackground, $isInApp, $title, $body, $type, $meta) {
+function sendCloud($from, $to, $token, $ios, $isBackground, $isInApp, $title, $body, $type, $meta) {
     global $conn, $maxLogLength, $requestID;
 
     
-    $url="https://fcm.googleapis.com/fcm/send";
-    
-    /*if (!$ios) {
-    
-        if ($isBackground) {
-            $data='{"to":"'.$to.'","data":{"from":"'.$from.'","type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.'},"notification":{"title":"'.$title.'","body":"'.$body.'"}}';
-        }
-        else if ($title != null) {
-            $data='{"to":"'.$to.'","data":{"from":"'.$from.'","type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.',"title":"'.$title.'","body":"'.$body.'"}}';
-        }
-        else {
-            $data='{"to":"'.$to.'","data":{"from":"'.$from.'","type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.'}}';        
-        }
-    }
-    else {
-        if ($title != null) {
-            $data='{"to":"'.$to.'","data":{"from":"'.$from.'","type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.',"title":"'.$title.'","body":"'.$body.'"}}';
-        }
-        else {
-            $data='{"to":"'.$to.'","data":{"from":"'.$from.'","type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.'}}';        
-        }
-    }*/  
+    $url="https://fcm.googleapis.com/fcm/send";  
     
     //using from instead of fromuser results in Bad Request error
     if (!$ios) {
@@ -3889,21 +3868,24 @@ function sendCloud($from, $to, $ios, $isBackground, $isInApp, $title, $body, $ty
         }
 
         if ($isBackground) {
-            $data='{"to":"'.$to.'","data":{"fromuser":'.$from.',"type":"'.$type.'","content":"'.$content.'","meta":"'.$meta.'","inapp":'.$isInApp.'},"notification":{"title":"'.$title.'","body":"'.$body.'"}}';
+            $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","content":"'.$content.'","meta":"'.$meta.'","inapp":'.$isInApp.'},"notification":{"title":"'.$title.'","body":"'.$body.'"}}';
         }
         else if ($title != null) {
-            $data='{"to":"'.$to.'","data":{"fromuser":'.$from.',"type":"'.$type.'","content":"'.$content.'","meta":"'.$meta.'","inapp":'.$isInApp.',"title":"'.$title.'","body":"'.$body.'"}}';
+            $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","content":"'.$content.'","meta":"'.$meta.'","inapp":'.$isInApp.',"title":"'.$title.'","body":"'.$body.'"}}';
         }
         else {
-            $data='{"to":"'.$to.'","data":{"fromuser":'.$from.',"type":"'.$type.'","content":"'.$content.'","meta":"'.$meta.'","inapp":'.$isInApp.'}}';        
+            $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","content":"'.$content.'","meta":"'.$meta.'","inapp":'.$isInApp.'}}';        
         }
     }
     else {
-        if ($title != null) {
-            $data='{"to":"'.$to.'","data":{"fromuser":'.$from.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.',"title":"'.$title.'","body":"'.$body.'"}}';
+        if ($isBackground) {
+            $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.'},"notification":{"title":"'.$title.'","body":"'.$body.'"}}';
+        }
+        else if ($title != null) {
+            $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.',"title":"'.$title.'","body":"'.$body.'"}}';
         }
         else {
-            $data='{"to":"'.$to.'","data":{"fromuser":'.$from.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.'}}';        
+            $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.'}}';        
         }
     }
     
@@ -3921,6 +3903,12 @@ function sendCloud($from, $to, $ios, $isBackground, $isInApp, $title, $body, $ty
     );
     $context  = stream_context_create($options);   
     $result = file_get_contents($url, false, $context);
+
+    /*sqlinsert("log_errors", array(
+        "RequestID"=>array("i",$requestID),
+        "Time"=>array("s",date("Y-m-d H:i:s",time())),
+        "Content"=>array("s",truncateString($data." --- ".$result, $maxLogLength)),
+    ),false);*/
 
     //can't insert emoji string to Content.
     

@@ -259,6 +259,7 @@
         text-align:left;
         overflow:hidden;
         text-overflow:ellipsis;
+        cursor:default;
     }
     
     #measure {
@@ -446,9 +447,10 @@
 <div id="horizontalseparator"></div>
 <div id="menuLeft">[tablelist]</div>
 <div id="menuRight">
+    <div class="menuitemRight" onclick="clearOwnLog()">Clear own log</div>
     <div class="menuitemRight" onclick="resetAutoIncrement()">Set profiledata auto_increment to...</div>
     <div class="menuitemRight" onclick="showChangePassword()">Change password</div>
-    <div class="menuitemRight" onclick="logOut()">Log out</div>
+    <div class="menuitemRight" onclick="logOut()">Log out</div>    
 </div>
 
 <script>
@@ -600,8 +602,11 @@
         infoPanel.style.right="0px";
         updatePanel();     
         editField.style.visibility="hidden";
-        editButton.innerText="Edit value";
-        editButton.className="menucenter_active";
+
+        if (selectedCell.parentNode.rowIndex != 0) {
+            editButton.innerText="Edit value";
+            editButton.className="menucenter_active";
+        }
         event.stopPropagation();
     }
     
@@ -614,9 +619,17 @@
         pTop=parseInt(window.getComputedStyle(infoPanel, null).getPropertyValue("padding-top").split("px")[0]);
         pBottom=parseInt(window.getComputedStyle(infoPanel, null).getPropertyValue("padding-bottom").split("px")[0]); 
         
-        document.getElementById("measure").innerText=selectedCell.innerText;
-        var textW=document.getElementById("measure").offsetWidth + 2; // border 1 + 1
-        document.getElementById("measure").innerText="";
+        if (selectedCell.parentNode.rowIndex == 0) {
+            document.getElementById("measure").innerHTML="<b>" + selectedCell.innerText + "</b>";
+            var textW=document.getElementById("measure").offsetWidth + 2; // border 1 + 1
+            document.getElementById("measure").innerHTML="";
+        }
+        else {
+            document.getElementById("measure").innerHTML=selectedCell.innerText;
+            var textW=document.getElementById("measure").offsetWidth + 2; // border 1 + 1
+            document.getElementById("measure").innerHTML="";
+        }
+        
         var cellW=selectedCell.offsetWidth;
         var left=infoPanel.offsetLeft;
         //alert(left + " " + cellW + " " + textW + " " + bodyContent.clientWidth + " " + (bodyContent.clientWidth - left));
@@ -646,7 +659,14 @@
             }
         }
         var div=document.createElement("div");
-        div.innerHTML=selectedCell.innerHTML;       
+
+        if (selectedCell.parentNode.rowIndex == 0) {
+            div.innerHTML="<b>" + selectedCell.innerHTML + "</b>";
+        }
+        else {
+            div.innerHTML=selectedCell.innerHTML; 
+        }
+
         infoPanel.insertBefore(div, editField);
         if (selectedCell.innerText != "") {        
             infoPanel.style.height="auto";
@@ -801,10 +821,12 @@
     function editValue(update) {
         if (infoPanel.style.visibility == "visible") {
             if (editField.style.visibility != "visible") {
-                editField.style.visibility="visible";
-                editField.value=selectedCell.innerText;
-                editButton.innerText="Done";
-                editField.focus();
+                if (selectedCell.parentNode.rowIndex != 0) {
+                    editField.style.visibility="visible";
+                    editField.value=selectedCell.innerText;
+                    editButton.innerText="Done";
+                    editField.focus();
+                }
             }
             else {            
                 if (update) {
@@ -834,6 +856,10 @@
             makeRequest("/admin?action=empty&tableName=" + thisTable, 3);
         } 
     } 
+
+    function clearOwnLog() {
+        makeRequest("/admin?action=clearownlog", 6);
+    }
     
     function resetAutoIncrement() {
         var newValue = prompt("Value", "103");
@@ -864,7 +890,7 @@
                     switch (requestType) {
                         case 1: //update
                         if (this.responseText.substring(0,2)=="OK") {
-                            selectedCell.firstChild.innerText=this.responseText.substring(3);
+                            selectedCell.innerText=this.responseText.substring(3);
                             updatePanel(); 
                             editField.style.visibility="hidden";
                             editButton.innerText="Edit value";   
@@ -921,6 +947,20 @@
                             alert(this.responseText);
                         }
                         break;
+                        case 6:
+                        if (this.responseText=="OK") {
+                            if (thisTable == "log_input" && tbl != null) {
+                                var cellCount = tbl.rows[0].cells.length;
+                                for (var i = tbl.rows.length-1; i >= 0; i--) {
+                                    if (tbl.rows[i].cells[cellCount-1].innerText == "91.240.185.17" || tbl.rows[i].cells[cellCount-1].innerText == "192.168.0.100") {
+                                        tbl.deleteRow(i);
+                                    }
+                                }
+                            }                           
+                        }
+                        else {
+                            alert(this.responseText);
+                        }
                     }
                 }
                 else {
