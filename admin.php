@@ -94,7 +94,7 @@ function loginPage($isNew) {
 
 function adminPage($Username) {
     if (isset($_GET["action"])) {
-        if ($_GET["action"] != "changepassword" && $_GET["action"] != "logout" && $_GET["action"] != "resetautoincrement") {
+        if ($_GET["action"] != "changepassword" && $_GET["action"] != "logout" && $_GET["action"] != "resetautoincrement" && $_GET["action"] != "clearownlog") {
             $tableName=$_GET["tableName"];
             if ($tableName == "admin" || $tableName=="log_admin") {
                 print "ERROR:This table cannot be changed.";
@@ -189,6 +189,11 @@ function adminPage($Username) {
                 else {
                     print "Wrong input";
                 }
+                return; 
+            case "clearownlog":
+                $query="delete from log_input where IP='91.240.185.17' or IP='192.168.0.100'";
+                sqlexecuteliteral($query);
+                print "OK";          
                 return;                                
         }         
     }     
