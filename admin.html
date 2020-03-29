@@ -179,6 +179,32 @@
     
     .currentTable:active {
         background-color:#000000;
+    } 
+
+    .currentTableTest {
+        height:100%;
+        width:200px;          
+        background-color:#CC6666;
+        color:white;
+        float:left;
+        text-align:center; 
+        font-weight:bold;
+        line-height:40px;
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently
+        supported by Chrome, Opera and Firefox */  
+    } 
+    
+    .currentTableTest:hover {
+        background-color:#AA4444;
+    }
+    
+    .currentTableTest:active {
+        background-color:#882222;
     }   
     
     .menucenter {
@@ -396,8 +422,10 @@
         }
     }
     
+    currentAutoIncrement = 105;
     thisTable="[tableName]";
     username="[username]";
+    testDB="[testDB]";
     [colDefs]
     definition=colDefs[window.innerWidth]; 
     //alert(window.innerWidth + " " + document.documentElement.clientWidth);//tablet: portrait 628 (desktop 980), landscape 1004, computer: 1920 (scrollbars 1903) 
@@ -408,7 +436,7 @@
         <img src="images/sandwichmenu_left.svg" onclick="openLeftMenu(event)"/>
     </div>
     <div class="menuseparator"></div>
-    <div class="currentTable" onclick="reload()">[tableName]</div>
+    <div class="[currentTableStyle]" onclick="reload()">[tableName]</div>
     <div class="menuseparator"></div>
     <div id="editButton" class="menucenter" onclick="editButtonClicked(event)">Edit value</div>
     <div class="menuseparator"></div>
@@ -447,6 +475,7 @@
 <div id="horizontalseparator"></div>
 <div id="menuLeft">[tablelist]</div>
 <div id="menuRight">
+    [switchtest]
     <div class="menuitemRight" onclick="clearOwnLog()">Clear own log</div>
     <div class="menuitemRight" onclick="resetAutoIncrement()">Set profiledata auto_increment to...</div>
     <div class="menuitemRight" onclick="showChangePassword()">Change password</div>
@@ -574,7 +603,7 @@
     }
     
     function selectTable(table) {
-        window.location.href=window.location.protocol + "//" +  window.location.hostname + "/admin?table=" + table;
+        window.location.href=window.location.protocol + "//" +  window.location.hostname + "/admin?table=" + table + testDB;
         event.stopPropagation();    
     }
     
@@ -778,7 +807,6 @@
             if (selectedRows.length != tbl.rows.length-1) { //select all if none or some rows are selected
                 selectedRows=[];
                 selectedIDs=[];
-                tbl.rows[0].cells[0].firstChild.checked=true;            
                 for (var i = 1; i < tbl.rows.length; i++) {
                     tbl.rows[i].cells[0].firstChild.checked=true;                
                     if (i % 2 == 0) {
@@ -857,13 +885,25 @@
         } 
     } 
 
+    function swtichTest() {
+        window.location.href=window.location.protocol + "//" +  window.location.hostname + "/admin?table=" + thisTable + "&testDB";
+        event.stopPropagation(); 
+    }
+
+    function swtichNormal() {
+        window.location.href=window.location.protocol + "//" +  window.location.hostname + "/admin?table=" + thisTable;
+        event.stopPropagation(); 
+    }
+
     function clearOwnLog() {
         makeRequest("/admin?action=clearownlog", 6);
     }
     
     function resetAutoIncrement() {
-        var newValue = prompt("Value", "103");
-        makeRequest("/admin?action=resetautoincrement&Value=" + newValue, 5);
+        var newValue = prompt("Value", currentAutoIncrement);
+        if (newValue != null) {
+            makeRequest("/admin?action=resetautoincrement&Value=" + newValue, 5);
+        }
     } 
     
     function showChangePassword() {
@@ -908,7 +948,11 @@
                             }
                             selectedRows=[];
                             selectedIDs=[]; 
-                            lastSelectedIndex=null;                       
+                            lastSelectedIndex=null;
+                            if (tbl.rows[0].cells[0].firstChild.checked) {
+                                tbl.rows[0].cells[0].firstChild.checked=false;
+                                tbl.rows[0].className="rowPair";
+                            }                       
                         }
                         else {
                             var errorString=this.responseText.split(":")[1];
@@ -922,7 +966,11 @@
                             }
                             selectedRows=[];
                             selectedIDs=[]; 
-                            lastSelectedIndex=null;   
+                            lastSelectedIndex=null;  
+                            if (tbl.rows[0].cells[0].firstChild.checked) {
+                                tbl.rows[0].cells[0].firstChild.checked=false;
+                                tbl.rows[0].className="rowPair";
+                            }  
                         }
                         else {
                             var errorString=this.responseText.split(":")[1];
@@ -970,11 +1018,11 @@
             }        
         };
         if (postData == null) {
-            xhttp.open("GET", url, true);
+            xhttp.open("GET", url + testDB, true);
             xhttp.send();
         }
         else {
-            xhttp.open("POST", url, true);
+            xhttp.open("POST", url + testDB, true);
             xhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
             xhttp.send(postData);
         }
