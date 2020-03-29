@@ -48,9 +48,11 @@ if (isset($_COOKIE["SessionID"])) {
         adminPage($Username);
     }
 }
-else if (isset($_GET["Username"]) && $_GET["Username"]!="") {
-    $Username=$_GET["Username"];
-    $Password=$_GET["Password"];
+else if (isset($_POST["Username"]) && $_POST["Username"]!="") {
+    $Username=$_POST["Username"];
+    $Password=$_POST["Password"];
+
+    useRealDatabase();
     $stmt=&sqlselect("select ID, Password from admin where Username=?", array("s",$Username));
     $stmt->store_result();
     $count=$stmt->num_rows;
@@ -64,7 +66,22 @@ else if (isset($_GET["Username"]) && $_GET["Username"]!="") {
             $sessionid=password_hash($Hash, PASSWORD_DEFAULT, ["cost" => 10]);
             sqlupdate("admin", array("SessionID" => array("s",$sessionid)), array("ID" => array("i",$ID)));
             setcookie("SessionID",$sessionid);
-            print "<script>window.location.replace(window.location.protocol + '//' +  window.location.hostname + '/admin');</script>"; //so we can use the back button from the next page without having to resend the form.
+            if (isset($_GET["testDB"])) {
+                if (isset($_GET["table"])) {
+                    print "<script>window.location.replace(window.location.protocol + '//' +  window.location.hostname + '/admin?table={$_GET["table"]}&testDB');</script>";
+                }
+                else {
+                    print "<script>window.location.replace(window.location.protocol + '//' +  window.location.hostname + '/admin?testDB');</script>"; //so we can use the back button from the next page without having to resend the form.
+                }
+            }
+            else {
+                if (isset($_GET["table"])) {
+                    print "<script>window.location.replace(window.location.protocol + '//' +  window.location.hostname + '/admin?table={$_GET["table"]}');</script>";
+                }
+                else {
+                    print "<script>window.location.replace(window.location.protocol + '//' +  window.location.hostname + '/admin');</script>"; //so we can use the back button from the next page without having to resend the form.
+                }
+            }            
             die();
         }
         else {
@@ -78,7 +95,7 @@ else if (isset($_GET["Username"]) && $_GET["Username"]!="") {
     die(); 
 }
 else {
-    loginPage(true);
+    loginPage(true);    
 }
 
 function loginPage($isNew) {
@@ -88,6 +105,22 @@ function loginPage($isNew) {
     }
     else {
         $content=str_replace("[message]","",$content);
+    }
+    if (isset($_GET["testDB"])) {
+        if (isset($_GET["table"])) {
+            $content=str_replace("[urladd]","?table={$_GET["table"]}&testDB",$content);
+        }
+        else {
+            $content=str_replace("[urladd]","?testDB",$content);
+        }
+    }
+    else {
+        if (isset($_GET["table"])) {
+            $content=str_replace("[urladd]","?table={$_GET["table"]}",$content);
+        }
+        else {
+            $content=str_replace("[urladd]","",$content);
+        }
     }
     print $content;
 }
@@ -191,7 +224,13 @@ function adminPage($Username) {
                 }
                 return; 
             case "clearownlog":
-                $query="delete from log_input where IP='91.240.185.17' or IP='192.168.0.100'";
+                $str = "";
+                global $conn;
+                foreach ($conn::EXCLUDED_IPS as $value) {
+                    $str.= "IP='$value' or ";
+                }
+                $str=substr($str,0,strlen($str)-4);
+                $query="delete from log_input where $str";
                 sqlexecuteliteral($query);
                 print "OK";          
                 return;                                
@@ -200,7 +239,7 @@ function adminPage($Username) {
     
     $tables=array();
     $tablelist="";
-    $stmt=sqlselectall("show tables");
+    $stmt=&sqlselectall("show tables");
     $stmt->bind_result($table);
     while($stmt->fetch()) {
         $tables[]=$table;
@@ -218,7 +257,7 @@ function adminPage($Username) {
     $content=getTable($table);    
     
     $colDefs="var colDefs = { ";
-    $stmt=sqlselect("select ScreenWidth, Definitions from admin_layout where TableName=?",array("s",$table));
+    $stmt=&sqlselect("select ScreenWidth, Definitions from admin_layout where TableName=?",array("s",$table));
     $stmt->bind_result($ScreenWidth, $Definitions);
     while($stmt->fetch()) {
         $colDefs.="$ScreenWidth:\"$Definitions\",";
@@ -241,6 +280,17 @@ function adminPage($Username) {
     $frame=str_replace("[tableName]",$table,$frame);
     $frame=str_replace("[tablelist]",$tablelist,$frame);
     $frame=str_replace("[content]",$content,$frame); 
+    if (isset($_GET["testDB"])) {
+        $frame=str_replace("[testDB]","&testDB",$frame);
+        $frame=str_replace("[currentTableStyle]","currentTableTest",$frame);
+        $frame=str_replace("[switchtest]",'<div class="menuitemRight" id="menuSwitchTest" onclick="swtichNormal()">Switch to real</div>',$frame); 
+    }
+    else {
+        $frame=str_replace("[testDB]","",$frame); 
+        $frame=str_replace("[currentTableStyle]","currentTable",$frame);
+        $frame=str_replace("[switchtest]",'<div class="menuitemRight" id="menuSwitchTest" onclick="swtichTest()">Switch to test</div>',$frame);         
+    }
+    
     
     print $frame;
 } 
@@ -248,7 +298,7 @@ function adminPage($Username) {
 //,$definition
 function getTable($page) {
     
-    $stmt=sqlselectall("select * from $page");
+    $stmt=&sqlselectall("select * from $page");
     $result=$stmt->get_result();
     $row = $result->fetch_assoc(); 
     if ($row) { 
@@ -298,6 +348,7 @@ function getTable($page) {
 
 function authSession() {
     $sessionid = $_COOKIE["SessionID"];
+    useRealDatabase();
     $stmt=&sqlselect("select Username from admin where SessionID=?", array("s",$sessionid));
     $stmt->store_result();
     $count=$stmt->num_rows;    
@@ -309,6 +360,9 @@ function authSession() {
         $stmt->bind_result($Username);
         $stmt->fetch();
         $stmt->close();
+        if (isset($_GET["testDB"])) {
+            useTestDatabase();
+        }        
         return $Username;
     }
 }
