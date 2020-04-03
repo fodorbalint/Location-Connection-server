@@ -7,3 +7,4 @@ vendor
 AuthKey*.p8
 Connection.php
 mail.php
+php_errors.log
