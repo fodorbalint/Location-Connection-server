@@ -1865,11 +1865,7 @@ function loadList($ID=0) {
                             $userrelation=3;
                         }
                     }
-                    foreach ($friendids as $target) {
-                        if ($target == $resultID) { 
-                            $userrelation=4;
-                        }
-                    }
+                    //friend status doesn't matter here
                     addrowRelation($row, $str, $userrelation);
                 }
                 $stmt->free_result();
@@ -1942,13 +1938,7 @@ function loadList($ID=0) {
                     while($row=$res->fetch_assoc()) { //fetch_array would return with double as many elements
                         reverseRelation($row, $likedbyids, $targetMatches, $friendbyids, $latitude, $longitude);
                         $resultID=$row["ID"];
-                        $userrelation=3;
-                        foreach ($friendids as $target) {
-                            if ($target == $resultID) {
-                                $userrelation=4;
-                            }
-                        }
-                        addrowRelation($row, $str, $userrelation);
+                        addrowRelation($row, $str, 3); //friend status doesn't matter here
                     }
                     $stmt->free_result();
                     $stmt=&sqlselectall($sqlcount.$sqlbasecount);
@@ -1973,7 +1963,16 @@ function loadList($ID=0) {
                     $res=$stmt->get_result();
                     while($row=$res->fetch_assoc()) { //fetch_array would return with double as many elements
                         reverseRelation($row, $likedbyids, $targetMatches, $friendbyids, $latitude, $longitude);
-                        addrowRelation($row, $str, 2);
+
+                        $resultID=$row["ID"];
+                        $userrelation=2;
+                        
+                        foreach ($targetMatches as $target) {
+                            if ($target == $resultID) {
+                                $userrelation=3;
+                            }
+                        }
+                        addrowRelation($row, $str, $userrelation);
                     }
                     $stmt->free_result();
                     $stmt=&sqlselectall($sqlcount.$sqlbasecount);
