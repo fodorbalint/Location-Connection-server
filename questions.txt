@@ -126,7 +126,7 @@ If you unmatch from them, the conversation will disappear, and get permanently d
 
 Can I report or block someone?
  
-Yes, on iOS this is implemented. Tap the 3 black dots on a profile page to show the menu, or find the same functions in a chat window's menu.
+Yes; if you are logged in, tap the 3 black dots on a profile page to show the menu, or find the same functions in a chat window's menu.
 A confirmation dialog will appear if you select one.
 If you report someone, I will review it within 24 hours, and take necessary action.
 Blocking a user will permanently hides them while you are logged into your account; you cannot even find them in your hidden people list. If it was a match, you now automatically unmatch from them too.

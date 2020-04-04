@@ -2417,8 +2417,9 @@ function getRelations($ID, &$targetMatches, &$likeids, &$likedbyids, &$hideids, 
     $stmt->bind_result($Likes, $LikedBy, $Hides, $HidBy, $Friends, $FriendsBy, $Blocks);
     $stmt->fetch(); 
     $stmt->free_result();
-     
-    $stmt=&sqlselectbymany("select FirstID, SecondID from matches where Active=1 and (FirstID=? or SecondID=?)",
+    
+    //selecting even passive matches (in case the user deactivated themselves)
+    $stmt=&sqlselectbymany("select FirstID, SecondID from matches where UnmatchInitiator is null and (FirstID=? or SecondID=?)",
         array(array("i",$ID), array("i",$ID)));
     $stmt->bind_result($FirstID, $SecondID);
     $targetMatches=array();
@@ -2692,8 +2693,8 @@ function getuserdata($ID, $target) {
     if ($row != null) {
         $userrelation=2;
          
-        //we need to check if it is an active match    
-        $stmt=&sqlselectbymany("select FirstID, SecondID from matches where Active=1 and (FirstID=? or SecondID=?)",
+        //we need to check if it is a match (even if it is pasive, because the user is passive)   
+        $stmt=&sqlselectbymany("select FirstID, SecondID from matches where UnmatchInitiator is null and (FirstID=? or SecondID=?)",
             array(array("i",$ID), array("i",$ID)));
         $stmt->bind_result($FirstID, $SecondID);
         $targetMatches=array();
