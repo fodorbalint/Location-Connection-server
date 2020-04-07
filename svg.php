@@ -1,65 +1,108 @@
 <?php
+// http://192.168.0.100/svg.php?notification=1&usefile=1&useangles=1
+if (!isset($_GET["notification"]) || !isset($_GET["usefile"]) || !isset($_GET["useangles"])) {
+    print "Missing parameters.";
+    die();
+}
 
-$file="svgdata_notification.txt";
-$usefile=1;
-$useangles=0;
+if ($_GET["notification"]) {
+    $file="svgdata_notification.txt";
+    $savefile="notification_icon.svg";
+    $usefile=$_GET["usefile"]; 
+    $useangles=$_GET["useangles"];
+    $noofpoints=7;
 
-$noofpoints=4;
-$rmainsmall=81;
-$rmainlarge=94.5;
-$rsmall=54;
-$rlarge=63; //$rsmall*$rmainlarge/$rmainsmall;
+    $bigMainCircleColor1="#".dechex(255).dechex(255).dechex(255);
+    $bigMainCircleColor2="#".dechex(255).dechex(255).dechex(255);
+    $smallMainCircleColor1="#".dechex(255).dechex(255).dechex(255);
+    $smallMainCircleColor2="#".dechex(255).dechex(255).dechex(255); 
+    $wideLineStartColor="#".dechex(255).dechex(255).dechex(255);
+    $wideLineEndColor="#".dechex(255).dechex(255).dechex(255);
+    $narrowLineColor="#".dechex(255).dechex(255).dechex(255);
+    $bigCircleStartColor=array(255,255,255);
+    $bigCircleEndColor=array(255,255,255); 
+    $smallCircleStartColor=array(255,255,255);
+    $smallCircleEndColor=array(255,255,255);
+    $shadeoffset=0;
+
+    $rmainsmall=108;
+    $rmainlarge=126;
+    $rsmall=72;
+    $rlarge=84; //$rsmall*$rmainlarge/$rmainsmall;
+    $wideLineWidth=40;
+    $narrowLineWidth=24;
+
+    /* outer 4 points to edge.
+    min distance: rlarge/2
+    other 2 points are third way. 
+
+}
+else {
+    $usefile=$_GET["usefile"];
+    $file="svgdata.txt";
+    $savefile="logo.svg";
+    $useangles=$_GET["useangles"];
+    $noofpoints=10;
+
+    $bigMainCircleColor1="#".dechex(128).dechex(128).dechex(128);
+    $bigMainCircleColor2="#".dechex(128).dechex(128).dechex(128);
+    $smallMainCircleColor1="#".dechex(0).dechex(0).dechex(0);
+    $smallMainCircleColor2="#".dechex(255).dechex(255).dechex(255); 
+    $wideLineStartColor="#".dechex(0).dechex(0).dechex(0);
+    $wideLineEndColor="#".dechex(204).dechex(204).dechex(204);
+    $narrowLineColor="#".dechex(204).dechex(204).dechex(204);
+    $bigCircleStartColor=array(0,128,25);
+    $bigCircleEndColor=array(128,25,0); 
+    $smallCircleStartColor=array(255,51,0);
+    $smallCircleEndColor=array(0,255,51);
+    $shadeoffset=50;
+
+    $rmainsmall=81;
+    $rmainlarge=94.5;
+    $rsmall=54;
+    $rlarge=63; //$rsmall*$rmainlarge/$rmainsmall;
+    $wideLineWidth=30;
+    $narrowLineWidth=18;
+
+    /*
+    Current rules
+
+    Circles:
+
+    8 4 3 7
+    1 10 5
+    6 9 2
+
+    Angles:
+
+    65.454545
+    (difference: 98.181818)
+    163.636363
+    261.818181
+
+    (at 2/3 angles)
+    229.090909
+    130.090909
+    327,272727
+
+    (at 2/3 angles)
+    108.545454
+    305.454545
+    338.181818
+
+    Distances:
+
+    Max: 374.5 (217)
+    Min: 169.5 (12)
+    Second: max dist - rsmall
+    Third: second - 2*rlarge
+    Fourth: min + rlarge
+    */
+} 
+
 $minDist=$rmainlarge+$rlarge;
-
-/*
-Current rules
-
-Circles:
-
-8 4 3 7
-1 10 5
-6 9 2
-
-Angles:
-
-65.454545
-(difference: 98.181818)
-163.636363
-261.818181
-
-(at 2/3 angles)
-229.090909
-130.090909
-327,272727
-
-(at 2/3 angles)
-108.545454
-305.454545
-338.181818
-
-Distances:
-
-Max: 374.5 (217)
-Min: 169.5 (12)
-Second: max dist - rsmall
-Third: second - 2*rlarge
-Fourth: min + rlarge
-*/
 $maxDist=500 * 7/8 - $rlarge;
-$wideLineWidth=30;
-$narrowLineWidth=18; 
-$bigMainCircleColor1="#".dechex(128).dechex(128).dechex(128);
-$bigMainCircleColor2="#".dechex(128).dechex(128).dechex(128);
-$smallMainCircleColor1="#".dechex(0).dechex(0).dechex(0);
-$smallMainCircleColor2="#".dechex(255).dechex(255).dechex(255); 
-$wideLineStartColor="#".dechex(0).dechex(0).dechex(0);
-$wideLineEndColor="#".dechex(204).dechex(204).dechex(204);
-$narrowLineColor="#".dechex(204).dechex(204).dechex(204);
-$bigCircleStartColor=array(0,128,25);
-$bigCircleEndColor=array(128,25,0); 
-$smallCircleStartColor=array(255,51,0);
-$smallCircleEndColor=array(0,255,51);
-$shadeoffset=50;
+
 //$shaderatio=0.3; 
 
 $valuesX=array();
@@ -218,9 +261,10 @@ $distances = array_map(function ($item) {
 
 file_put_contents($file,implode("|",$valuesX)."\n".implode("|",$valuesY)."\n".implode("|",$angles)."\n".implode("|",$distances));
 
-$content="<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 1000\"><rect width=\"100%\" height=\"100%\" fill=\"#808080\" />\n".$lines.$circles.'</svg>';
-file_put_contents("logo.svg",$content);
+$content="<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 1000\">".$lines.$circles.'</svg>';
+file_put_contents($savefile,$content);
 
+$content="<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 1000\"><rect width=\"100%\" height=\"100%\" fill=\"#808080\" />".$lines.$circles.'</svg>';
 print $content;
 
 function hexColor($color) {
