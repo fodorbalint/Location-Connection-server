@@ -2693,26 +2693,30 @@ function getuserdata($ID, $target) {
     if ($row != null) {
         $userrelation=2;
          
-        //we need to check if it is a match (even if it is pasive, because the user is passive)   
-        $stmt=&sqlselectbymany("select FirstID, SecondID from matches where UnmatchInitiator is null and (FirstID=? or SecondID=?)",
-            array(array("i",$ID), array("i",$ID)));
-        $stmt->bind_result($FirstID, $SecondID);
-        $targetMatches=array();
-        while ($stmt->fetch()) {
-            if ($ID==$FirstID) {
-                $targetMatches[]=$SecondID;
-            }
-            else {
-                $targetMatches[]=$FirstID;
-            }
-        }                        
-        $stmt->free_result();
-        
-        foreach ($targetMatches as $targetMatch) {
-            if ($targetMatch == $target) {
+        //we need to check if it is a match (even if it is passive, because the user is passive)   
+        $stmt=&sqlselectbymany("select UnmatchInitiator from matches where (FirstID = ? and SecondID = ?) or (FirstID = ? and SecondID = ?) ",
+            array(array("i",$ID), array("i",$target), array("i",$target), array("i",$ID)));
+
+        $stmt->store_result();
+        if ($stmt->num_rows == 1) {
+            $stmt->bind_result($UnmatchInitiator);
+            $stmt->fetch();
+
+            if ($UnmatchInitiator === null) {
                 $userrelation=3;
             }
-        }
+            else if ($UnmatchInitiator == $ID) { //blocked user
+                $stmt->free_result();
+                return  "ERROR_UserNotAvailable";
+            }
+            else { //$UnmatchInitiator == $target
+                $userrelation=2;
+            }
+        } 
+        else {
+            $stmt->free_result();
+            return  "ERROR_MatchNotFound";
+        }    
         
         $stmt=&sqlselect("select FriendsBy from likehide where ID=?", array("i",$ID));
         $stmt->bind_result($FriendsBy);
