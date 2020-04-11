@@ -150,7 +150,7 @@ $secondsInDay=60*60*24;
 $conn->sqlConnect();
 
 $requestID=0;
-if (!(isset($_GET["action"]) && ($_GET["action"]=="register" || $_GET["action"]=="login" || $_GET["action"]=="loginsession" || $_GET["action"]=="profileedit" || $_GET["action"]=="setpassword" || $_GET["action"]=="changepassword"))) {
+//if (!(isset($_GET["action"]) && ($_GET["action"]=="register" || $_GET["action"]=="login" || $_GET["action"]=="loginsession" || $_GET["action"]=="profileedit" || $_GET["action"]=="setpassword" || $_GET["action"]=="changepassword"))) {
     //if (!in_array($userip, $conn::EXCLUDED_IPS)) {
         $requestID=sqlinsert("log_input", array(
             "Time"=>array("s",date("Y-m-d H:i:s",time())),
@@ -159,7 +159,7 @@ if (!(isset($_GET["action"]) && ($_GET["action"]=="register" || $_GET["action"]=
             "IP"=>array("s",$userip)
         ),true);   
     //}
-}
+//}
 
 if (isset($_GET["action"])) {
     if ($_GET["action"] == "reporterror") {
@@ -715,11 +715,11 @@ else {
 }
 
 if ($result != "") {
-    if (!(isset($_GET["action"]) && ($_GET["action"]=="register" || $_GET["action"]=="login" || $_GET["action"]=="loginsession" || $_GET["action"]=="profileedit" || $_GET["action"]=="setpassword" || $_GET["action"]=="changepassword"))) {
+    //if (!(isset($_GET["action"]) && ($_GET["action"]=="register" || $_GET["action"]=="login" || $_GET["action"]=="loginsession" || $_GET["action"]=="profileedit" || $_GET["action"]=="setpassword" || $_GET["action"]=="changepassword"))) {
         //if (!in_array($userip, $conn::EXCLUDED_IPS)) {
             sqlupdate("log_input", array("Response"=>array("s",removeSession(truncateString($result,$maxLogLength)))), array("ID"=>array("i",$requestID)));   
         //}
-    }
+    //}
     print $result;
 }                   
 
@@ -1308,11 +1308,17 @@ function validateField($key, $value) {
             break;
         case "Username":
             if ($value === "") return "Error: Username is empty.";
+            if (substr($value, strlen($value) - 1) == "\\") {
+                return "Error: Last character of username cannot be \\";
+            }
             $res = checkUsername($value);
             if ($res != "OK") return $res;
             break;
         case "Name":
             if ($value === "") return "Error: Name is empty.";
+            if (substr($value, strlen($value) - 1) == "\\") {
+                return "Error: Last character of name cannot be \\";
+            }
             break;
         case "Pictures":
             $arr=explode("|",$value);
@@ -1320,9 +1326,15 @@ function validateField($key, $value) {
                 if ($picture === "") return "Error: One of the pictures is empty.";	
             }
             if (count($arr) > $maxNumPictures) return "Error: Too many pictures";
+            if (substr($value, strlen($value) - 1) == "\\") {
+                return "Error: Last character of pictures cannot be \\";
+            }
             break;
         case "Description":
             if ($value === "")  return "Error: Introduction is empty.";
+            if (substr($value, strlen($value) - 1) == "\\") {
+                return "Error: Last character of introduction cannot be \\";
+            }
             break;
         case "Latitude":
             if ($value !== "" && (!is_numeric($value) || $value > 90 || $value < -90)) return "Error: Invalid latitude";
@@ -1390,7 +1402,7 @@ function registerUser() {
             case "Description":              
                 if ($res=validatefield($key, $value)) return $res;
                 $profiledata[$key] = array("s",$value);
-                $returnstr.="$key:\"$value\",";
+                $returnstr.="$key:\"".escapeString($value)."\",";
                 break;
             case "Password":
                 if ($res=validatefield($key, $value)) return $res;
@@ -1530,7 +1542,7 @@ function updateProfile($ID) { //Requests resulting in Error: are not coming from
             case "Description":
                 if ($res=validatefield($key, $value)) return $res;
                 $profiledata[$key] = array("s",$value);
-                $returnstradd.="$key:\"$value\",";
+                $returnstradd.="$key:\"".escapeString($value)."\",";
                 break;
             case "Password":
                 $stmt=&sqlselect("select Password from profiledata where ID=?", array("i",$ID));
@@ -1725,7 +1737,7 @@ function getLoginInfo($ID, $sessionid) {
     foreach ($row as $key => $value) {
         $str.="$key:";
         if ($key=="Email" || $key=="Username" || $key=="Name" || $key=="Pictures" || $key=="Description" || $key=="OtherAddress") {
-            $str.="\"$value\",";
+            $str.="\"".escapeString($value)."\",";
         }
         else {
             $str.="$value,";
@@ -2659,7 +2671,7 @@ function addrowRelation($row, &$str, $userrelation) {
     foreach ($row as $key => $value) {
         $str.="$key:";
         if ($key=="Username" || $key=="Name" || $key=="Pictures" || $key=="Description") {
-            $str.="\"$value\",";
+            $str.="\"".escapeString($value)."\",";
         }
         else {
             $str.="$value,";
@@ -2674,7 +2686,7 @@ function addrow($row, &$str) {
     foreach ($row as $key => $value) {
         $str.="$key:";
         if ($key=="Username" || $key=="Name" || $key=="Pictures" || $key=="Description") {
-            $str.="\"$value\",";
+            $str.="\"".escapeString($value)."\",";
         }
         else {
             $str.="$value,";
@@ -2875,8 +2887,11 @@ function likeProfile($ID, $target, $time) {
                 $TargetPicture=explode("|",$TargetPictures)[0];
                 $Active=($ActiveAccount==1)?"True":"False";
                 $ActiveAccountStr=($ActiveAccount==1)?"True":"False";
+
+                $TargetUsername=escapeString($TargetUsername);
+                $TargetNameEscaped=escapeString($TargetName);
                 
-                sendCloud($ID, $target, $token, $ios, $MatchBackground, $MatchInApp, YOUMATCHEDWITH." $TargetName.", null, "matchProfile", "{MatchID:$MatchID,Active:$Active,MatchDate:$time,UnmatchDate:,Chat:,TargetID:$ID,TargetUsername:\\\"$TargetUsername\\\",TargetName:\\\"$TargetName\\\",TargetPicture:\\\"$TargetPicture\\\",ActiveAccount:$ActiveAccountStr}");
+                sendCloud($ID, $target, $token, $ios, $MatchBackground, $MatchInApp, YOUMATCHEDWITH." $TargetName.", null, "matchProfile", '{MatchID:'.$MatchID.',Active:'.$Active.',MatchDate:'.$time.',UnmatchDate:,Chat:,TargetID:'.$ID.',TargetUsername:"'.$TargetUsername.'",TargetName:"'.$TargetNameEscaped.'",TargetPicture:"'.$TargetPicture.'",ActiveAccount:'.$ActiveAccountStr.'}');
             }
             else {
                 $stmt->bind_result($MatchID);
@@ -3290,7 +3305,7 @@ function loadmessagelist($ID) {
                 for($i=$count-3; $i<$count; $i++) {
                     $updated=false;
                     updatemessage($messageItems[$i], $ID, false, $updated);
-                    $latestEntries[] = unescapeAll($messageItems[$i]);
+                    $latestEntries[] = unescapeChat($messageItems[$i]);
 
                     if ($updated) {
                         $mainUpdated=true;
@@ -3309,7 +3324,7 @@ function loadmessagelist($ID) {
                 for ($i=0; $i<count($messageItems);$i++) {
                     $updated=false; 
                     updatemessage($messageItems[$i], $ID, false, $updated);
-                    $latestEntries[] = unescapeAll($messageItems[$i]);
+                    $latestEntries[] = unescapeChat($messageItems[$i]);
 
                     if ($updated) {
                         $mainUpdated=true;
@@ -3328,12 +3343,15 @@ function loadmessagelist($ID) {
             if ($mainUpdated) {
                 $updatedChats[]=array($MatchID, $UpdateChat);
             }
-            $Chat = str_replace('"','\"',"{".implode($latestEntries,"}{")."}"); //unescaped, and quotes have to escaped for ServerParser
+            $Chat = escapeString("{".implode($latestEntries,"}{")."}"); //unescaped, and quotes have to escaped for ServerParser
         }
         $TargetPicture=explode("|",$TargetPictures)[0];
         
         $Active=($Active==1)?"True":"False";
         $ActiveAccount=($ActiveAccount==1)?"True":"False";
+
+        $TargetUsername = escapeString($TargetUsername);
+        $TargetName = escapeString($TargetName);
         
         $result.="{MatchID:$MatchID,Active:$Active,MatchDate:$MatchDate,UnmatchDate:$UnmatchDate,Chat:\"$Chat\",TargetID:$TargetID,TargetUsername:\"$TargetUsername\",TargetName:\"$TargetName\",TargetPicture:\"$TargetPicture\",ActiveAccount:$ActiveAccount}";             
     }
@@ -3384,7 +3402,7 @@ function loadmessages($ID, $MatchID, $TargetID) {
         $messageItems=explode("}{",$Chat);
         for ($i=0; $i<count($messageItems);$i++) { 
             $updated=false;
-            $messageItems[$i]=unescapeAll($messageItems[$i]);
+            $messageItems[$i]=unescapeChat($messageItems[$i]);
             updatemessage($messageItems[$i], $ID, true, $updated);
             if ($updated) {
                 $mainUpdated=true;
@@ -3409,7 +3427,7 @@ function loadmessages($ID, $MatchID, $TargetID) {
             
             sendCloud($ID, $senderID, $token, $ios, false, true, null, null, "loadMessages", $clouddata);
         }
-        $Chat = str_replace('"','\"',$Chat); //for ServerParser
+        $Chat = escapeString($Chat); //for ServerParser
     }
     $targetexists=false;
     if ($Friends != "") {
@@ -3432,6 +3450,10 @@ function loadmessages($ID, $MatchID, $TargetID) {
     else {
         $arr=explode("|",$TargetPictures);
         $TargetPicture=$arr[0];
+
+        $TargetUsername = escapeString($TargetUsername);
+        $TargetName = escapeString($TargetName);
+
         return "OK;{MatchID:$match,Active:$Active,MatchDate:$MatchDate,UnmatchDate:$UnmatchDate,Chat:\"$Chat\",Sex:$Sex,TargetID:$TargetID,TargetUsername:\"$TargetUsername\",TargetName:\"$TargetName\",TargetPicture:\"$TargetPicture\",ActiveAccount:$ActiveAccount,Friend:$Friend}";
     }
 }
@@ -3439,7 +3461,7 @@ function loadmessages($ID, $MatchID, $TargetID) {
 function sendmessage($ID, $MatchID, $message) {
     global $mysqli, $maxMessageLength, $secondsInDay;
     
-    $messageToInsert=escapeAll($message);
+    $messageToInsert=escapeChat($message);
 
     if (strlen($messageToInsert) > $maxMessageLength) {
         return "Error: Message exceeds the $maxMessageLength characters limit.";
@@ -3872,6 +3894,8 @@ function sendCloud($from, $to, $token, $ios, $isBackground, $isInApp, $title, $b
     $title = str_replace('"','\"',$title); 
     $body = str_replace('\\','\\\\',$body);
     $body = str_replace('"','\"',$body);
+    $meta = str_replace('\\','\\\\',$meta);
+    $meta = str_replace('"','\"',$meta);
 
     if ($isBackground) {
         $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.'},"notification":{"title":"'.$title.'","body":"'.$body.'"}}';
@@ -4034,16 +4058,20 @@ function removeSession($str) {
     return preg_replace("/SessionID=[^&]+/","SessionID=[]",$str);
 }
 
-function escapeAll($message) {
+function escapeChat($message) {
     $message=str_replace('\\','\\\\',$message);
     $message=str_replace("}","\}",$message);
     return str_replace("{","\{",$message);
 }
 
-function unescapeAll($message) {
+function unescapeChat($message) {
     $message=str_replace("\}","}",$message);
     $message=str_replace("\{","{",$message);
     return str_replace('\\\\','\\',$message);    
+}
+
+function escapeString($message) {
+    return str_replace('"','\"',$message);
 }
 
 function filenameSafe($str) {
