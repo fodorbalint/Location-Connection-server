@@ -3284,12 +3284,14 @@ function loadmessagelist($ID) {
             $Chat=substr($Chat,1,strlen($Chat)-2);
             $messageItems=explode("}{",$Chat);
             $count=count($messageItems);
+
             $latestEntries=array();
             if ($count > 3) { //select 3 latest messages, we will display each in one line.
                 for($i=$count-3; $i<$count; $i++) {
                     $updated=false;
                     updatemessage($messageItems[$i], $ID, false, $updated);
-                    $latestEntries[]=$messageItems[$i];
+                    $latestEntries[] = unescapeAll($messageItems[$i]);
+
                     if ($updated) {
                         $mainUpdated=true;
                         list($messageID, $senderID, $sentTime, $seenTime, $readTime, $message)=getmessageparts($messageItems[$i]);
@@ -3307,6 +3309,8 @@ function loadmessagelist($ID) {
                 for ($i=0; $i<count($messageItems);$i++) {
                     $updated=false; 
                     updatemessage($messageItems[$i], $ID, false, $updated);
+                    $latestEntries[] = unescapeAll($messageItems[$i]);
+
                     if ($updated) {
                         $mainUpdated=true;
                         list($messageID, $senderID, $sentTime, $seenTime, $readTime, $message)=getmessageparts($messageItems[$i]);
@@ -3319,13 +3323,12 @@ function loadmessagelist($ID) {
                         }                        
                     }
                 }
-                $latestEntries=$messageItems;
             }
-            $UpdateChat="{".implode($messageItems,"}{")."}";
+            $UpdateChat="{".implode($messageItems,"}{")."}"; //unescape not applied
             if ($mainUpdated) {
                 $updatedChats[]=array($MatchID, $UpdateChat);
             }
-            $Chat="{".implode($latestEntries,"}{")."}";
+            $Chat = str_replace('"','\"',"{".implode($latestEntries,"}{")."}"); //unescaped, and quotes have to escaped for ServerParser
         }
         $TargetPicture=explode("|",$TargetPictures)[0];
         
@@ -3381,6 +3384,7 @@ function loadmessages($ID, $MatchID, $TargetID) {
         $messageItems=explode("}{",$Chat);
         for ($i=0; $i<count($messageItems);$i++) { 
             $updated=false;
+            $messageItems[$i]=unescapeAll($messageItems[$i]);
             updatemessage($messageItems[$i], $ID, true, $updated);
             if ($updated) {
                 $mainUpdated=true;
@@ -3391,7 +3395,9 @@ function loadmessages($ID, $MatchID, $TargetID) {
                 }   
             }
         }
-        $Chat="{".implode($messageItems,"}{")."}";
+        
+        $Chat = "{".implode($messageItems,"}{")."}"; //for ServerParser
+        
         if ($mainUpdated) {
             sqlupdate("matches", array("Chat"=>array("s",$Chat)), array("ID"=> array("i",$match)));
         }
@@ -3403,6 +3409,7 @@ function loadmessages($ID, $MatchID, $TargetID) {
             
             sendCloud($ID, $senderID, $token, $ios, false, true, null, null, "loadMessages", $clouddata);
         }
+        $Chat = str_replace('"','\"',$Chat); //for ServerParser
     }
     $targetexists=false;
     if ($Friends != "") {
@@ -3432,8 +3439,9 @@ function loadmessages($ID, $MatchID, $TargetID) {
 function sendmessage($ID, $MatchID, $message) {
     global $mysqli, $maxMessageLength, $secondsInDay;
     
-    $message=escapeAll($message);
-    if (strlen($message) > $maxMessageLength) {
+    $messageToInsert=escapeAll($message);
+
+    if (strlen($messageToInsert) > $maxMessageLength) {
         return "Error: Message exceeds the $maxMessageLength characters limit.";
     }
     //authorize user to add a message to the match
@@ -3477,7 +3485,7 @@ function sendmessage($ID, $MatchID, $message) {
     $updateTimeField=($ID==$FirstID)?"FirstLatestMessage":"SecondLatestMessage";
     
     $messageMeta="$nextID|$ID|$time|0|0";    
-    $insertText="{".$messageMeta."|".$message."}";  
+    $insertText="{".$messageMeta."|".$messageToInsert."}";  
      
     sqlexecuteparams("update matches set Chat=?, $updateTimeField='$timeStr' where ID=$MatchID",array(array("s",$Chat.$insertText)));
     $mysqli->query("unlock tables");
@@ -3860,37 +3868,19 @@ function sendCloud($from, $to, $token, $ios, $isBackground, $isInApp, $title, $b
     
     $url="https://fcm.googleapis.com/fcm/send";  
     
-    //using from instead of fromuser results in Bad Request error
-    if (!$ios) {
-        //for compatibiity
-        $content = $meta;     
-        if ($type == "sendMessage") {
-            $content.="|";
-        }
-        if ($type == "matchProfile" || $type == "rematchProfile" || $type == "unmatchProfile" || $type == "locationUpdate" || $type == "locationUpdateEnd") {
-            $content=$from."|".$meta;
-        }
+    $title = str_replace('\\','\\\\',$title); //username may contain special characters
+    $title = str_replace('"','\"',$title); 
+    $body = str_replace('\\','\\\\',$body);
+    $body = str_replace('"','\"',$body);
 
-        if ($isBackground) {
-            $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","content":"'.$content.'","meta":"'.$meta.'","inapp":'.$isInApp.'},"notification":{"title":"'.$title.'","body":"'.$body.'"}}';
-        }
-        else if ($title != null) {
-            $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","content":"'.$content.'","meta":"'.$meta.'","inapp":'.$isInApp.',"title":"'.$title.'","body":"'.$body.'"}}';
-        }
-        else {
-            $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","content":"'.$content.'","meta":"'.$meta.'","inapp":'.$isInApp.'}}';        
-        }
+    if ($isBackground) {
+        $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.'},"notification":{"title":"'.$title.'","body":"'.$body.'"}}';
+    }
+    else if ($title != null) {
+        $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.',"title":"'.$title.'","body":"'.$body.'"}}';
     }
     else {
-        if ($isBackground) {
-            $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.'},"notification":{"title":"'.$title.'","body":"'.$body.'"}}';
-        }
-        else if ($title != null) {
-            $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.',"title":"'.$title.'","body":"'.$body.'"}}';
-        }
-        else {
-            $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.'}}';        
-        }
+        $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.'}}';        
     }
     
     $options = array(
@@ -3908,11 +3898,12 @@ function sendCloud($from, $to, $token, $ios, $isBackground, $isInApp, $title, $b
     $context  = stream_context_create($options);   
     $result = file_get_contents($url, false, $context);
 
-    /*sqlinsert("log_errors", array(
+    //for logging
+    sqlinsert("log_errors", array(
         "RequestID"=>array("i",$requestID),
         "Time"=>array("s",date("Y-m-d H:i:s",time())),
         "Content"=>array("s",truncateString($data." --- ".$result, $maxLogLength)),
-    ),false);*/
+    ),false);
 
     //can't insert emoji string to Content.
     
@@ -4044,9 +4035,15 @@ function removeSession($str) {
 }
 
 function escapeAll($message) {
-    $message=str_replace('"','\"',$message);
+    $message=str_replace('\\','\\\\',$message);
     $message=str_replace("}","\}",$message);
     return str_replace("{","\{",$message);
+}
+
+function unescapeAll($message) {
+    $message=str_replace("\}","}",$message);
+    $message=str_replace("\{","{",$message);
+    return str_replace('\\\\','\\',$message);    
 }
 
 function filenameSafe($str) {
