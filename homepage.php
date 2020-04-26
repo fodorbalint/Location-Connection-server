@@ -864,6 +864,10 @@ function insertReport($ID, $target, $match) {
     $stmt->fetch();
     $stmt->free_result();
 
+    if ($TargetUsername == null) { //deleted user
+        $TargetUsername = 0;
+    }
+
     sqlinsert("reports",array(
         "Time"=>array("s",date("Y-m-d H:i:s",time())),
         "UserID"=>array("i",$ID),
@@ -3206,7 +3210,7 @@ function deleteAccount($ID) {
     sqldelete("session", array("ID" => array("i",$ID)));
     
     $mysqli->query("lock tables likehide write");
-    $fields=array("Likes","Hides","LikedBy","HidBy","Friends","FriendsBy");
+    $fields=array("Likes","Hides","LikedBy","HidBy","Friends","FriendsBy","Blocks","BlockedBy");
     foreach($fields as $column) {
         $stmt=&sqlselect("select ID, $column from likehide where $column regexp ?", array("s","(^$ID:[[:digit:]]+|\|$ID:[[:digit:]]+)"));//in phpmyaddmin \ must be doubled
         $stmt->bind_result($rowID,$field);
@@ -3887,6 +3891,9 @@ function formatTime($intervalSeconds) {
 function sendCloud($from, $to, $token, $ios, $isBackground, $isInApp, $title, $body, $type, $meta) {
     global $conn, $maxLogLength, $requestID;
 
+    if ($token == null) { //deleted user
+        return;
+    }
     
     $url="https://fcm.googleapis.com/fcm/send";  
     
