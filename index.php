@@ -11,8 +11,8 @@ switch($_ENV["PATH"]) {
     case "/cron":
         require "cron.php";
         break;
-    case "/questions":
-        require "questions.php";
+    case "/helpcenter":
+        require "helpcenter.php";
         break;          
 }
 ?>

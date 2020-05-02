@@ -221,6 +221,9 @@ if (isset($_GET["action"])) {
     else if ($_GET["action"] == "helpcenter") {
         $result=getQuestions();
     }
+    else if ($_GET["action"] == "tutorial") {
+        $result=getTutorial();
+    }
     else if ($_GET["action"] == "helpcentermessage") {
         $ID=$_GET["ID"]==""?0:$_GET["ID"];
         $content=$_GET["Content"];
@@ -978,6 +981,35 @@ function getQuestions() {
     $str="";
     while($stmt->fetch()) {
         $str.=$question."\t".$answer."\t";
+    }
+    $stmt->close();
+    $str=substr($str,0,strlen($str)-1);
+    return "OK;$str";
+} 
+
+function getTutorial() {
+    $selectfields="Description";
+    if ($_GET["OS"] == "Android") {
+        if ($_GET["dpWidth"] <= 500) {
+            $selectfields.=",`Android phone`";
+        }
+        else {
+            $selectfields.=",`Android tablet`";
+        }
+    }
+    else {
+        if ($_GET["dpWidth"] <= 500) {
+            $selectfields.=",`iOS phone`";
+        }
+        else {
+            $selectfields.=",`iOS tablet`";
+        }
+    }
+    $stmt=&sqlselectall("select $selectfields from tutorial");
+    $stmt->bind_result($description, $picture);
+    $str="";
+    while($stmt->fetch()) {
+        $str.=$description."\t".$picture."\t";
     }
     $stmt->close();
     $str=substr($str,0,strlen($str)-1);
