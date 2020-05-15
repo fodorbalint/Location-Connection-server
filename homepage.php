@@ -919,60 +919,67 @@ function blockuser($ID, $target, $time) {
         }
     }
 
-    $mysqli->query("lock tables likehide write");
+    if ($target != 0) {
+        $mysqli->query("lock tables likehide write");
 
-    //remove the initiator's like from their likes and the target's likedby. Remove friend, friendby from the source and target ID
-    $stmt=&sqlselect("select Likes, Friends, FriendsBy from likehide where ID=?", array("i",$ID));
-    $stmt->bind_result($Likes, $Friends, $FriendsBy);
-    $stmt->fetch(); 
-    $stmt->free_result();
-    
-    removeLikeHideItem($Likes,$target);
-    removeLikeHideItem($Friends,$target);
-    removeLikeHideItem($FriendsBy,$target);
-    
-    sqlupdate("likehide", array("Likes" => array("s",$Likes), "Friends"=>array("s",$Friends), "FriendsBy"=>array("s",$FriendsBy)), array("ID" => array("i",$ID)));
-    
-    $stmt=&sqlselect("select LikedBy, Friends, FriendsBy from likehide where ID=?", array("i",$target));
-    $stmt->bind_result($LikedBy, $Friends, $FriendsBy);
-    $stmt->fetch(); 
-    $stmt->free_result();
-    
-    removeLikeHideItem($LikedBy,$ID);
-    removeLikeHideItem($Friends,$ID);
-    removeLikeHideItem($FriendsBy,$ID);
-    
-    sqlupdate("likehide", array("LikedBy" => array("s",$LikedBy), "Friends"=>array("s",$Friends), "FriendsBy"=>array("s",$FriendsBy)), array("ID" => array("i",$target)));
-
-    //check if block exists and update it. Block should not exist, unless HTTP query is repeated
-    $stmt=&sqlselect("select Blocks from likehide where ID=?", array("i",$ID));
-    $stmt->bind_result($Blocks);
-    $stmt->fetch(); 
-    $stmt->free_result();
-
-    $targetblockexists=existsLikeHideItem($Blocks, $target);
-
-    if (!$targetblockexists) {
-        addLikeHideItemUpdate("Blocks",$Blocks,$target,$time,$ID);
-
-        $stmt=&sqlselect("select BlockedBy from likehide where ID=?", array("i",$target));
-        $stmt->bind_result($BlockedBy);
+        //remove the initiator's like from their likes and the target's likedby. Remove friend, friendby from the source and target ID
+        $stmt=&sqlselect("select Likes, Friends, FriendsBy from likehide where ID=?", array("i",$ID));
+        $stmt->bind_result($Likes, $Friends, $FriendsBy);
         $stmt->fetch(); 
         $stmt->free_result();
         
-        addLikeHideItemUpdate("BlockedBy",$BlockedBy,$ID,$time,$target);
+        removeLikeHideItem($Likes,$target);
+        removeLikeHideItem($Friends,$target);
+        removeLikeHideItem($FriendsBy,$target);
         
-        $mysqli->query("unlock tables");
-        $stmt->close();
+        sqlupdate("likehide", array("Likes" => array("s",$Likes), "Friends"=>array("s",$Friends), "FriendsBy"=>array("s",$FriendsBy)), array("ID" => array("i",$ID)));
+        
+        $stmt=&sqlselect("select LikedBy, Friends, FriendsBy from likehide where ID=?", array("i",$target));
+        $stmt->bind_result($LikedBy, $Friends, $FriendsBy);
+        $stmt->fetch(); 
+        $stmt->free_result();
+        
+        removeLikeHideItem($LikedBy,$ID);
+        removeLikeHideItem($Friends,$ID);
+        removeLikeHideItem($FriendsBy,$ID);
+        
+        sqlupdate("likehide", array("LikedBy" => array("s",$LikedBy), "Friends"=>array("s",$Friends), "FriendsBy"=>array("s",$FriendsBy)), array("ID" => array("i",$target)));
 
-        return "OK";
+        //check if block exists and update it. Block should not exist, unless HTTP query is repeated
+        $stmt=&sqlselect("select Blocks from likehide where ID=?", array("i",$ID));
+        $stmt->bind_result($Blocks);
+        $stmt->fetch(); 
+        $stmt->free_result();
+
+        $targetblockexists=existsLikeHideItem($Blocks, $target);
+
+        if (!$targetblockexists) {
+            addLikeHideItemUpdate("Blocks",$Blocks,$target,$time,$ID);
+
+            $stmt=&sqlselect("select BlockedBy from likehide where ID=?", array("i",$target));
+            $stmt->bind_result($BlockedBy);
+            $stmt->fetch(); 
+            $stmt->free_result();
+            
+            addLikeHideItemUpdate("BlockedBy",$BlockedBy,$ID,$time,$target);
+            
+            $mysqli->query("unlock tables");
+            $stmt->close();
+
+            return "OK";
+        }
+        else {
+            $mysqli->query("unlock tables");
+            $stmt->close();
+
+            return "Error: User is already blocked.";
+        }
     }
     else {
-        $mysqli->query("unlock tables");
-        $stmt->close();
-
-        return "Error: Block already exists.";
+        return "OK";
     }
+
+    
 }
 
 function getQuestions() {
@@ -2969,7 +2976,7 @@ function likeProfile($ID, $target, $time) {
         return "OK;$MatchID";
     }
     $mysqli->query("unlock tables");
-    return "Error: Like already exists."; 
+    return "Error: User already liked."; 
 }
 
 function addFriend($ID, $target, $time) {
@@ -3137,7 +3144,7 @@ function hideProfile($ID, $target, $time) {
         return "OK";
     } 
     $mysqli->query("unlock tables");
-    return "Error: Hide already exists.";
+    return "Error: User already hidden.";
 }
 
 function unhideProfile($ID, $target) {//A hide must exist to start with
