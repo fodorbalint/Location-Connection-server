@@ -1,51 +1,30 @@
-This is the first page.
+See all registered users on the main page, and filter by category, sort by activity, and narrow by geography. Keyword or number search is available too.
 
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-12 at 17.09.23.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-12 at 17.09.23.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-12 at 17.09.23.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-12 at 17.09.23.png
+Screenshot_2020-04-07-13-56-54.jpg
+Screenshot_20200407_141317_balintfodor.locationconnection.jpg
+Simulator_Screen_Shot_-_iPhone_11_Pro_Max_-_2020-03-12_at_17.09.23.png
+Simulator_Screen_Shot_-_iPad_Pro_(12.9-inch)_(3rd_generation)_-_2020-03-12_at_17.33.27.jpg
 
-You can open the map and use the filters
+Show interest, hide the person, or move on.
 
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-12 at 17.17.28.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-12 at 17.17.28.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-12 at 17.17.28.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-12 at 17.17.28.png
+Screenshot_2020-04-07-14-30-22.jpg
+Screenshot_20200407_143039_balintfodor.locationconnection.jpg
+Simulator_Screen_Shot_-_iPhone_11_Pro_Max_-_2020-03-15_at_17.22.21.jpg
+Simulator_Screen_Shot_-_iPad_Pro_(12.9-inch)_(3rd_generation)_-_2020-03-15_at_17.23.48.jpg
 
-Like or hide the profile, or move on
+This is your match list. The recent lines from each conversation are visible here, and should you get unmatched, you can still read the conversation.
 
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-15 at 17.22.21.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-15 at 17.22.21.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-15 at 17.22.21.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-15 at 17.22.21.png
+Screenshot_2020-04-07-14-07-11.jpg
+Screenshot_20200407_141418_balintfodor.locationconnection.jpg
+Simulator_Screen_Shot_-_iPhone_11_Pro_Max_-_2020-03-15_at_18.15.19.jpg
+Simulator_Screen_Shot_-_iPad_Pro_(12.9-inch)_(3rd_generation)_-_2020-03-15_at_18.16.46.jpg
 
-Active chats are yellow, passive are pink
+Chat window. Whether your partner read your message is indicated. 
 
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-15 at 18.15.19.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-15 at 18.15.19.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-15 at 18.15.19.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-15 at 18.15.19.png
-
-Chat with feedback
-
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-15 at 18.21.29.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-15 at 18.21.29.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-15 at 18.21.29.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-15 at 18.21.29.png
-
-Settings
-
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-28 at 22.53.38.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-28 at 22.53.38.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-28 at 22.53.38.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-28 at 22.53.38.png
-
-Login page, or forgot your password?
-
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-12 at 17.26.41.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-12 at 17.26.41.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-12 at 17.26.41.png
-Simulator Screen Shot - iPhone 11 Pro Max - 2020-03-12 at 17.26.41.png
+Screenshot_2020-04-07-14-07-38.jpg
+Screenshot_20200407_141430_balintfodor.locationconnection.jpg
+Simulator_Screen_Shot_-_iPhone_11_Pro_Max_-_2020-03-15_at_18.21.29.jpg
+Simulator_Screen_Shot_-_iPad_Pro_(12.9-inch)_(3rd_generation)_-_2020-03-15_at_18.22.50.jpg
 
 -----
 

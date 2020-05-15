@@ -44,7 +44,7 @@ if (preg_match("/^.+\.jpg$/i",$path) || preg_match("/^.+\.jpeg$/i",$path)) {
     }
 }
 else if (preg_match("/^.+\.png$/i",$path)) {
-    $file=$_ENV["ROOT"].$path;
+    $file=$_ENV["ROOT"].$path; //cannot contains space, not even as %20
     if (file_exists($file)) {
         header("Content-Type: image/png");                                                
         header("Content-Length: ".filesize($file));
