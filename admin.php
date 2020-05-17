@@ -126,6 +126,8 @@ function loginPage($isNew) {
 }
 
 function adminPage($Username) {
+    global $conn;
+
     if (isset($_GET["action"])) {
         if ($_GET["action"] != "changepassword" && $_GET["action"] != "logout" && $_GET["action"] != "resetautoincrement" && $_GET["action"] != "clearownlog") {
             $tableName=$_GET["tableName"];
@@ -224,13 +226,7 @@ function adminPage($Username) {
                 }
                 return; 
             case "clearownlog":
-                $str = "";
-                global $conn;
-                foreach ($conn::EXCLUDED_IPS as $value) {
-                    $str.= "IP='$value' or ";
-                }
-                $str=substr($str,0,strlen($str)-4);
-                $query="delete from log_input where $str";
+                $query="delete from log_input where IP='".$conn::OWN_IP."' or IP like '192.168.%' or IP like '77.241.%'"; //and sometimes 212.27.%
                 sqlexecuteliteral($query);
                 print "OK";          
                 return;                                
@@ -254,7 +250,9 @@ function adminPage($Username) {
     else {
         $table="log_input";
     }
-    $content=getTable($table);    
+    $start = isset($_GET["start"])?$_GET["start"]:0;
+    $count = isset($_GET["count"])?$_GET["count"]:100;
+    $content=getTable($table, $start, $count);    
     
     $colDefs="var colDefs = { ";
     $stmt=&sqlselect("select ScreenWidth, Definitions from admin_layout where TableName=?",array("s",$table));
@@ -280,15 +278,16 @@ function adminPage($Username) {
     $frame=str_replace("[tableName]",$table,$frame);
     $frame=str_replace("[tablelist]",$tablelist,$frame);
     $frame=str_replace("[content]",$content,$frame); 
+    $frame=str_replace("[ownIP]",$conn::OWN_IP,$frame); 
     if (isset($_GET["testDB"])) {
         $frame=str_replace("[testDB]","&testDB",$frame);
         $frame=str_replace("[currentTableStyle]","currentTableTest",$frame);
-        $frame=str_replace("[switchtest]",'<div class="menuitemRight" id="menuSwitchTest" onclick="swtichNormal()">Switch to real</div>',$frame); 
+        $frame=str_replace("[switchtest]",'<div class="menuitemRight" id="menuSwitchTest" onclick="switchNormal()">Switch to real</div>',$frame); 
     }
     else {
         $frame=str_replace("[testDB]","",$frame); 
         $frame=str_replace("[currentTableStyle]","currentTable",$frame);
-        $frame=str_replace("[switchtest]",'<div class="menuitemRight" id="menuSwitchTest" onclick="swtichTest()">Switch to test</div>',$frame);         
+        $frame=str_replace("[switchtest]",'<div class="menuitemRight" id="menuSwitchTest" onclick="switchTest()">Switch to test</div>',$frame);         
     }
     
     
@@ -296,9 +295,9 @@ function adminPage($Username) {
 } 
 
 //,$definition
-function getTable($page) {
+function getTable($page, $start, $count) {
     
-    $stmt=&sqlselectall("select * from $page");
+    $stmt=&sqlselectall("select * from $page order by ID desc limit $start, $count");
     $result=$stmt->get_result();
     $row = $result->fetch_assoc(); 
     if ($row) { 
@@ -336,7 +335,26 @@ function getTable($page) {
             $body.="</tr>";
             $counter++;
         }
-        $table="<table id=\"data\" cellspacing=\"1\" cellpadding=\"3\">$header$body</table>";
+        $table="</script><table id=\"data\" cellspacing=\"1\" cellpadding=\"3\">$header$body</table>";
+        $stmt->free_result();
+
+        $stmt=&sqlselectall("select count(*) from $page");
+        $stmt->bind_result($total);
+        $stmt->fetch();
+        
+        $end = (($start + $count) < $total)? $start + $count : $total;
+        $bottomlinks = ($start + 1). "-".$end." / ".$total;
+        if ($start > 0) {
+            $newstart=($start-$count > 0)?$start-$count:0;
+            $testDB=isset($_GET["testDB"])?"&testDB":"";
+            $bottomlinks="<a href='/admin?table=$page$testDB&start=$newstart&count=$count'>Prev</a>&nbsp;&nbsp;".$bottomlinks;
+        }
+        if ($end < $total) {
+            $newstart=$start+$count;
+            $testDB=isset($_GET["testDB"])?"&testDB":"";
+            $bottomlinks.="&nbsp;&nbsp;<a href='/admin?table=$page$testDB&start=$newstart&count=$count'>Next</a>";
+        }
+        $table.="<div style='padding:10px'>$bottomlinks</div>";
         $stmt->close();
         return $table;
     } 

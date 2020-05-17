@@ -885,12 +885,12 @@
         } 
     } 
 
-    function swtichTest() {
+    function switchTest() {
         window.location.href=window.location.protocol + "//" +  window.location.hostname + "/admin?table=" + thisTable + "&testDB";
         event.stopPropagation(); 
     }
 
-    function swtichNormal() {
+    function switchNormal() {
         window.location.href=window.location.protocol + "//" +  window.location.hostname + "/admin?table=" + thisTable;
         event.stopPropagation(); 
     }
@@ -1000,7 +1000,7 @@
                             if (thisTable == "log_input" && tbl != null) {
                                 var cellCount = tbl.rows[0].cells.length;
                                 for (var i = tbl.rows.length-1; i >= 0; i--) {
-                                    if (tbl.rows[i].cells[cellCount-1].innerText == "91.240.185.17" || tbl.rows[i].cells[cellCount-1].innerText == "192.168.0.100") {
+                                    if (tbl.rows[i].cells[cellCount-1].innerText == "[ownIP]" || tbl.rows[i].cells[cellCount-1].innerText.substring(0, 8) == "192.168." || tbl.rows[i].cells[cellCount-1].innerText.substring(0, 7) == "77.241.") {
                                         tbl.deleteRow(i);
                                     }
                                 }

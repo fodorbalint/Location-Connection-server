@@ -2,7 +2,7 @@ See all registered users on the main page, and filter by category, sort by activ
 
 Screenshot_2020-04-07-13-56-54.jpg
 Screenshot_20200407_141317_balintfodor.locationconnection.jpg
-Simulator_Screen_Shot_-_iPhone_11_Pro_Max_-_2020-03-12_at_17.09.23.png
+Simulator_Screen_Shot_-_iPhone_11_Pro_Max_-_2020-03-12_at_17.09.23.jpg
 Simulator_Screen_Shot_-_iPad_Pro_(12.9-inch)_(3rd_generation)_-_2020-03-12_at_17.33.27.jpg
 
 Show interest, hide the person, or move on.
