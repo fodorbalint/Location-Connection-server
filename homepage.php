@@ -84,7 +84,7 @@ else if (preg_match("/^.+\.mp3$/i",$path)) {
 }
 else {
     switch($path) {
-        case "balintfodor.locationconnection.apk":
+        case "app":
             $file="balintfodor.locationconnection-Signed.apk";
             header("Content-Type: application/octet-stream");
             header("Content-Disposition: attachment; filename=balintfodor.locationconnection.apk"); 
@@ -1202,7 +1202,7 @@ function uploadImage($touser, $ID, $file) {
             else {
                 $exif=@exif_read_data($tmp_name);
                 if ($exif != null && array_key_exists("Orientation", $exif)) {
-                    $orientation=exif_read_data($tmp_name)["Orientation"];
+                    $orientation=$exif["Orientation"];
                 }
                 else {
                     $orientation=1;
