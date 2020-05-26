@@ -85,9 +85,23 @@ else if (preg_match("/^.+\.mp3$/i",$path)) {
 else {
     switch($path) {
         case "app":
-            $file="balintfodor.locationconnection-Signed.apk";
+            $file="balintfodor.locationconnection.apk";
             header("Content-Type: application/octet-stream");
             header("Content-Disposition: attachment; filename=balintfodor.locationconnection.apk"); 
+            header("Content-Length: ".filesize($file));
+            $conn->sqlConnect();
+            if (!in_array($userip, $conn::EXCLUDED_IPS)) {
+                sqlinsert("log_downloads", array(
+                    "Time"=>array("s",date("Y-m-d H:i:s",time())),
+                    "IP"=>array("s",$userip)
+                ),false);
+            }        
+            readfile($file);
+            die();
+        case "apptest":
+            $file="balintfodor.locationconnection-test.apk";
+            header("Content-Type: application/octet-stream");
+            header("Content-Disposition: attachment; filename=balintfodor.locationconnection-test.apk"); 
             header("Content-Length: ".filesize($file));
             $conn->sqlConnect();
             if (!in_array($userip, $conn::EXCLUDED_IPS)) {
@@ -1190,89 +1204,90 @@ function uploadImage($touser, $ID, $file) {
     if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg") {
         return "ERROR_WrongImageExtension";
     }
+
+    $size=getimagesize($tmp_name);
+    if ($size === false) {
+        return "ERROR_NotAnImage";
+    }
+
+    if ($file["size"] > 20*1024*1024) {
+        return "ERROR_PictureTooLarge";
+    }
+    
+    if ($size[0] > 4000 || $size[1] > 4000) { //for even a 4480 x 4480 image, the server runs out of memory, resulting in a HTTP 500 error in the app.
+        return "ERROR_PictureSizeTooLarge";
+    }
+                    
+    $exif=@exif_read_data($tmp_name);
+    if ($exif != null && array_key_exists("Orientation", $exif)) {
+        $orientation=$exif["Orientation"];
+    }
     else {
-        $check=getimagesize($tmp_name);
-        if ($check === false) {
-            return "ERROR_NotAnImage";
+        $orientation=1;
+    }
+    
+    if (!$touser) {
+        $targetDirSmall="$tempUploadFolder/$ID/$smallImageSize/";
+        $targetDirLarge="$tempUploadFolder/$ID/$largeImageSize/";
+        
+        if (!$conn->bucket) { //unnecessary for Cloud, but it works.
+            if (!is_dir("$tempUploadFolder/$ID/")) {
+                mkdir("$tempUploadFolder/$ID/");
+            }
+            if (!is_dir($targetDirSmall)) {
+                mkdir($targetDirSmall);
+            }
+            if (!is_dir($targetDirLarge)) {
+                mkdir($targetDirLarge);
+            }
         }
-        else {
-            if ($file["size"] > 20*1024*1024) {
-                return "ERROR_PictureTooLarge";
+        
+        $targetFileSmall=$targetDirSmall.$fileName;
+        $targetFileLarge=$targetDirLarge.$fileName;
+        if (file_exists($targetFileSmall) || file_exists($targetFileLarge)) {
+            return "Error: This image already exists.";
+        }
+        
+        if (resize_image($tmp_name,$targetFileSmall,$smallImageSize,$smallImageSize,$orientation)) { //move_uploaded_file($tmp_name,$targetFile)
+            if (resize_image($tmp_name,$targetFileLarge,$largeImageSize,$largeImageSize,$orientation)) {
+                return "OK;$fileName;$ID";    
             }
             else {
-                $exif=@exif_read_data($tmp_name);
-                if ($exif != null && array_key_exists("Orientation", $exif)) {
-                    $orientation=$exif["Orientation"];
-                }
-                else {
-                    $orientation=1;
-                }
-                
-                if (!$touser) {
-                    $targetDirSmall="$tempUploadFolder/$ID/$smallImageSize/";
-                    $targetDirLarge="$tempUploadFolder/$ID/$largeImageSize/";
-                    
-                    if (!$conn->bucket) { //unnecessary for Cloud, but it works.
-                        if (!is_dir("$tempUploadFolder/$ID/")) {
-                            mkdir("$tempUploadFolder/$ID/");
-                        }
-                        if (!is_dir($targetDirSmall)) {
-                            mkdir($targetDirSmall);
-                        }
-                        if (!is_dir($targetDirLarge)) {
-                            mkdir($targetDirLarge);
-                        }
-                    }
-                    
-                    $targetFileSmall=$targetDirSmall.$fileName;
-                    $targetFileLarge=$targetDirLarge.$fileName;
-                    if (file_exists($targetFileSmall) || file_exists($targetFileLarge)) {
-                        return "Error: This image already exists.";
-                    }
-                    
-                    if (resize_image($tmp_name,$targetFileSmall,$smallImageSize,$smallImageSize,$orientation)) { //move_uploaded_file($tmp_name,$targetFile)
-                        if (resize_image($tmp_name,$targetFileLarge,$largeImageSize,$largeImageSize,$orientation)) {
-                            return "OK;$fileName;$ID";    
-                        }
-                        else {
-                            return "There was an error uploading your file: ".$errorText;
-                        }
-                    }
-                    else {
-                        return "There was an error uploading your file: ".$errorText;
-                    }
-                }
-                else {
-                    $stmt=&sqlselect("select Pictures from profiledata where ID=?", array("i",$ID));
-                    $stmt->bind_result($Pictures);
-                    $stmt->fetch();
-                    $stmt->close();
-                    $newPictures=$Pictures."|".$fileName;
-                    
-                    $targetFileSmall="$uploadFolder/$ID/$smallImageSize/".$fileName;
-                    $targetFileLarge="$uploadFolder/$ID/$largeImageSize/".$fileName; 
-                    
-                    if (file_exists($targetFileSmall) || file_exists($targetFileLarge)) {
-                        return "Error: This image already exists.";
-                    }
-                                        
-                    if (resize_image($tmp_name,$targetFileSmall,$smallImageSize,$smallImageSize,$orientation)) {
-                        if (resize_image($tmp_name,$targetFileLarge,$largeImageSize,$largeImageSize,$orientation)) {
-                            
-                            sqlupdate("profiledata", array("Pictures"=>array("s",$newPictures)), array("ID"=>array("i",$ID)));
-                            return "OK;$fileName";    
-                        }
-                        else {
-                            return "There was an error uploading your file: ".$errorText;
-                        }
-                    }
-                    else {
-                        return "There was an error uploading your file: ".$errorText;
-                    }
-                }                
+                return "There was an error uploading your file: ".$errorText;
             }
         }
+        else {
+            return "There was an error uploading your file: ".$errorText;
+        }
     }
+    else {
+        $stmt=&sqlselect("select Pictures from profiledata where ID=?", array("i",$ID));
+        $stmt->bind_result($Pictures);
+        $stmt->fetch();
+        $stmt->close();
+        $newPictures=$Pictures."|".$fileName;
+        
+        $targetFileSmall="$uploadFolder/$ID/$smallImageSize/".$fileName;
+        $targetFileLarge="$uploadFolder/$ID/$largeImageSize/".$fileName; 
+        
+        if (file_exists($targetFileSmall) || file_exists($targetFileLarge)) {
+            return "Error: This image already exists.";
+        }
+        
+        if (resize_image($tmp_name,$targetFileSmall,$smallImageSize,$smallImageSize,$orientation)) {
+            if (resize_image($tmp_name,$targetFileLarge,$largeImageSize,$largeImageSize,$orientation)) {
+                
+                sqlupdate("profiledata", array("Pictures"=>array("s",$newPictures)), array("ID"=>array("i",$ID)));
+                return "OK;$fileName";    
+            }
+            else {
+                return "There was an error uploading your file: ".$errorText;
+            }
+        }
+        else {
+            return "There was an error uploading your file: ".$errorText;
+        }                   
+    }                
 }
 
 function deleteTempImage($regsessionid, $imageName) {
@@ -3809,6 +3824,7 @@ function resize_image($sourceFile, $destFile, $targetW, $targetH, $orientation) 
     global $errortext;
     try {
         list($width, $height) = getimagesize($sourceFile);
+
         $ratio = $width / $height;
         if ($width > $height) { //landscape         
             $startX=floor($width-$height)/2; //cropped to the left of center if the difference is impair
@@ -4120,7 +4136,7 @@ function escapeString($message) {
     return str_replace('"','\"',$message);
 }
 
-function filenameSafe($str) {
+function filenameSafe($str) { //image will not be found if space or non-breaking space remains in the filename
     $str=str_replace("/","",$str);
     $str=str_replace("\\","",$str);
     $str=str_replace("?","",$str);
@@ -4132,7 +4148,9 @@ function filenameSafe($str) {
     $str=str_replace("<","",$str);
     $str=str_replace(">","",$str);
     $str=str_replace(".","",$str);
-    $str=str_replace(" ","_",$str);
+    $str=str_replace("\x20","_",$str); //space
+    $str=str_replace("\xc2\xa0","_",$str); //non-breaking space as it was in a stock image from OnePlus 7 Pro between the periods: OP_Macro8-Kristīne T. .jpg
+
     return $str;
 }
 
