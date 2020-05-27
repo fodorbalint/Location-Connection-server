@@ -1198,6 +1198,7 @@ function uploadImage($touser, $ID, $file) {
     //we need to bypass the caching system, so the user can upload a different picture with the same name.
     $pos=strrpos($fileName,".");
     $fileName=filenameSafe(substr($fileName,0,$pos))."_".time().".".substr($fileName,$pos+1); 
+    $fileName=urlencode($fileName); //to deal with special characters, see example in fileNameSafe()
                             
     $imageFileType = strtolower(pathinfo($file["name"],PATHINFO_EXTENSION));
     
@@ -1294,8 +1295,11 @@ function deleteTempImage($regsessionid, $imageName) {
     global $conn, $tempUploadFolder, $smallImageSize, $largeImageSize;
     
     if ($imageName != "") {
+        $imageName = urlencode($imageName);
+        
         $smallImageFolder="$tempUploadFolder/$regsessionid/$smallImageSize/";
         $largeImageFolder="$tempUploadFolder/$regsessionid/$largeImageSize/";
+        
         unlink($smallImageFolder.$imageName);
         unlink($largeImageFolder.$imageName);
         
@@ -1315,6 +1319,8 @@ function deleteTempImage($regsessionid, $imageName) {
 function deleteExistingImage($ID, $imageName) {
     global $uploadFolder, $smallImageSize, $largeImageSize;
     
+    $imageName = urlencode($imageName);
+
     $stmt=&sqlselect("select Pictures from profiledata where ID=?",array("i",$ID));
     $stmt->bind_result($Pictures);
     $stmt->fetch();
@@ -3447,6 +3453,7 @@ function loadmessages($ID, $MatchID, $TargetID) {
         $stmt->fetch();
         $stmt->close();
         //UnmatchInitiator is not needed, it is not possible to unmatch from someone before clicking on the message notification (it will disappear when the app opens), unless they unmatch from another device, but then they are logged out of here.
+        $target=$TargetID;
 
         if ($match == null) { //user deleted itself while the other was on its standalone page, and now loading chat. Chat remains, but userid does not exist anymore. 
             return "ERROR_MatchNotFound";
@@ -3512,7 +3519,7 @@ function loadmessages($ID, $MatchID, $TargetID) {
         $TargetUsername = escapeString($TargetUsername);
         $TargetName = escapeString($TargetName);
 
-        return "OK;{MatchID:$match,Active:$Active,MatchDate:$MatchDate,UnmatchDate:$UnmatchDate,Chat:\"$Chat\",Sex:$Sex,TargetID:$TargetID,TargetUsername:\"$TargetUsername\",TargetName:\"$TargetName\",TargetPicture:\"$TargetPicture\",ActiveAccount:$ActiveAccount,Friend:$Friend}";
+        return "OK;{MatchID:$match,Active:$Active,MatchDate:$MatchDate,UnmatchDate:$UnmatchDate,Chat:\"$Chat\",Sex:$Sex,TargetID:$target,TargetUsername:\"$TargetUsername\",TargetName:\"$TargetName\",TargetPicture:\"$TargetPicture\",ActiveAccount:$ActiveAccount,Friend:$Friend}";
     }
 }
 
@@ -4150,6 +4157,7 @@ function filenameSafe($str) { //image will not be found if space or non-breaking
     $str=str_replace(".","",$str);
     $str=str_replace("\x20","_",$str); //space
     $str=str_replace("\xc2\xa0","_",$str); //non-breaking space as it was in a stock image from OnePlus 7 Pro between the periods: OP_Macro8-Kristīne T. .jpg
+    //In this case the ī = %CC%84 will result in the image not being found. How to handle all special characters?
 
     return $str;
 }
