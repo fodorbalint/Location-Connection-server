@@ -315,7 +315,7 @@ if (isset($_GET["action"])) {
     else if ($_GET["action"]=="updatepictures") {
         $ID=$_GET["ID"];
         $sessionid=$_GET["SessionID"];
-        $Pictures=$_GET["Pictures"];
+        $Pictures=str_replace("%7C", "|", urlencode($_GET["Pictures"]));
         if (authSession($ID,$sessionid)) {
             $result=updatePictures($ID,$Pictures);
         }
