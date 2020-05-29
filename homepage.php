@@ -1404,7 +1404,7 @@ function validateField($key, $value) {
             if ($value !== "" && (!is_numeric($value) || $value > 90 || $value < -90)) return "Error: Invalid latitude";
             break;
         case "Longitude":
-            if ($value !== "" && (!is_numeric($value) || $value > 180 || $value < -180)) return "Error: Invalid latitude";
+            if ($value !== "" && (!is_numeric($value) || $value > 180 || $value < -180)) return "Error: Invalid longitude";
             break;
         case "LocationTime":
             if ($value !== "" && (!ctype_digit($value) || $value < time()-$allowedTimeDelay)) return "Error: Invalid timestamp"; //10 seconds are allowed
