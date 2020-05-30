@@ -35,9 +35,9 @@ What do the different listing options mean?
 - Matches: When a like is mutual
 - Friends: You can add someone as a friend after you match with them.
 - Liked: Those you liked.
-- Liked by: People who liked you.
+- Liked you: People who liked you.
 - Hid: Users you hid.
-- Hid by: Users who hid you.
+- Hid you: Users who hid you.
 Except from the list "Hid", people you hid are not shown.
 
 What do the icons mean?
