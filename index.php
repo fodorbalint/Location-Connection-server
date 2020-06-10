@@ -13,6 +13,6 @@ switch($_ENV["PATH"]) {
         break;
     case "/helpcenter":
         require "helpcenter.php";
-        break;          
+        break;         
 }
 ?>

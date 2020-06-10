@@ -15,12 +15,13 @@ error_reporting(E_ALL);
 
 require_once 'vendor/autoload.php';
 
-use Jose\Component\Core\AlgorithmManager;
+//"web-token/jwt-framework": "^1.3.8"
+/*use Jose\Component\Core\AlgorithmManager;
 use Jose\Component\Core\Converter\StandardConverter;
 use Jose\Component\KeyManagement\JWKFactory;
 use Jose\Component\Signature\JWSBuilder;
 use Jose\Component\Signature\Algorithm\ES256;
-use Jose\Component\Signature\Serializer\CompactSerializer;
+use Jose\Component\Signature\Serializer\CompactSerializer;*/
 
 require("Connection.php");
 $conn=new Connection();
@@ -347,14 +348,12 @@ if (isset($_GET["action"])) {
             $result="ERROR_LoginFailed";
         }
     }
-    else if ($_GET["action"] == "updatetoken") {
+    else if ($_GET["action"] == "updatetoken") { //used for iOS, because notification permission is requested after logging in
         $ID=$_GET["ID"];
         $sessionid=$_GET["SessionID"];
         if (authSession($ID,$sessionid)) {
             if (isset($_GET["token"])) {
-                //can be removed after Android update
-                $ios=(isset($_GET["ios"]))?$_GET["ios"]:0;
-                sqlupdate("session", array("Token" => array("s",$_GET["token"]), "iOS" => array("i", $ios)), array("ID" => array("i",$ID))); 
+                updateToken($ID);
                 $result="OK";   
             }
             else {
@@ -1772,12 +1771,16 @@ function authRegSession($ID, $regsessionid) {
     return true;
 }
 
+function updateToken($ID) {
+    $ios=(isset($_GET["ios"]))?$_GET["ios"]:0;
+    sqlupdate("session", array("Token" => array("s",$_GET["token"]), "iOS" => array("i",$ios)), array("ID" => array("i",$ID)));  
+}
+
 function getLoginInfo($ID, $sessionid) {
     if (isset($_GET["token"])) {
-        $ios=(isset($_GET["ios"]))?$_GET["ios"]:0;
-        sqlupdate("session", array("Token" => array("s",$_GET["token"]), "iOS" => array("i",$ios)), array("ID" => array("i",$ID)));    
+        updateToken($ID);  
     }
-    $stmt=&sqlselectbymany("select profiledata.ID, Email, Sex, Username, Name, Pictures, Description, unix_timestamp(RegisterDate) as RegisterDate, unix_timestamp(LastActiveDate) as LastActiveDate, ResponseRate, Latitude, Longitude, unix_timestamp(LocationTime) as LocationTime, SexChoice, UseLocation, BackgroundLocation, LocationShare, DistanceShare, ActiveAccount, SearchTerm, SearchIn, ListType, SortBy, OrderBy, GeoFilter, GeoSourceOther, OtherLatitude, OtherLongitude, OtherAddress, DistanceLimit, ResultsFrom, MatchInApp, MessageInApp, UnmatchInApp, RematchInApp, MatchBackground, MessageBackground, UnmatchBackground, RematchBackground, LocationAccuracy, InAppLocationRate, BackgroundLocationRate from profiledata, profilesettings where profiledata.ID=? and profilesettings.ID=?", array(array("i",$ID), array("i",$ID)));
+    $stmt=&sqlselectbymany("select profiledata.ID, Email, Sex, Username, Name, Pictures, Description, unix_timestamp(RegisterDate) as RegisterDate, unix_timestamp(LastActiveDate) as LastActiveDate, ResponseRate, Latitude, Longitude, unix_timestamp(LocationTime) as LocationTime, SexChoice, UseLocation, BackgroundLocation, LocationShare, DistanceShare, ActiveAccount, SearchTerm, SearchIn, ListType, SortBy, OrderBy, GeoFilter, GeoSourceOther, OtherLatitude, OtherLongitude, OtherAddress, DistanceLimit, ResultsFrom, MatchInApp, MessageInApp, UnmatchInApp, RematchInApp, MatchBackground, MessageBackground, UnmatchBackground, RematchBackground, LocationAccuracy, InAppLocationRate, BackgroundLocationRate, Token from profiledata, profilesettings, session where profiledata.ID=? and profilesettings.ID=? and session.ID=?", array(array("i",$ID), array("i",$ID), array("i",$ID)));
     $result=$stmt->get_result(); //do not use store_result before, this will return false
     $row = $result->fetch_assoc();
     $stmt->close();
@@ -1800,7 +1803,7 @@ function getLoginInfo($ID, $sessionid) {
     
     foreach ($row as $key => $value) {
         $str.="$key:";
-        if ($key=="Email" || $key=="Username" || $key=="Name" || $key=="Pictures" || $key=="Description" || $key=="OtherAddress") {
+        if ($key=="Email" || $key=="Username" || $key=="Name" || $key=="Pictures" || $key=="Description" || $key=="OtherAddress" || $key=="Token") {
             $str.="\"".escapeString($value)."\",";
         }
         else {
@@ -2573,8 +2576,8 @@ function updateSearchSettingsFilter($ID) {
         "OrderBy"=>array("s",$_GET["OrderBy"]),
         "GeoFilter"=>array("i",(int)($_GET["GeoFilter"] == "True")),
         "GeoSourceOther"=>array("i",(int)($_GET["GeoSourceOther"] == "True")),
-        "OtherLatitude"=>array("d",$_GET["OtherLatitude"]),
-        "OtherLongitude"=>array("d",$_GET["OtherLongitude"]),
+        "OtherLatitude"=>array("d",$_GET["OtherLatitude"] == ""?null:$_GET["OtherLatitude"]),
+        "OtherLongitude"=>array("d",$_GET["OtherLongitude"] == ""?null:$_GET["OtherLongitude"]),
         "OtherAddress"=>array("s",$_GET["OtherAddress"]),
         "DistanceLimit"=>array("i",$_GET["DistanceLimit"]),
         "ResultsFrom"=>array("i",$_GET["ResultsFrom"]),
@@ -3950,15 +3953,36 @@ function formatTime($intervalSeconds) {
     return $str; 
 }
 
+use Pushok\AuthProvider;
+/*use Pushok\Client;
+use Pushok\Notification;
+use Pushok\Payload;
+use Pushok\Payload\Alert;*/
+
+/*function makeNotificationRequest($jwt, $device_token, $bundleid) {
+    $sample_alert = '{"aps":{"alert":"hello"}}';
+    $url = "https://api.development.push.apple.com/3/device/".urlencode($device_token);
+
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_PORT, 443);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $sample_alert);
+  -  curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type:application/json", "authorization: bearer ".$jwt, "apns-expiration: 0", "apns-priority: 10", "apns-topic: ".$bundleid));
+    $response = curl_exec($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    var_dump($jwt);
+    var_dump($response);
+    var_dump($httpcode);
+}*/
+
 function sendCloud($from, $to, $token, $ios, $isBackground, $isInApp, $title, $body, $type, $meta) {
     global $conn, $maxLogLength, $requestID;
 
     if ($token == null) { //deleted user
         return;
     }
-    
-    $url="https://fcm.googleapis.com/fcm/send";  
-    
+
     $title = str_replace('\\','\\\\',$title); //username may contain special characters
     $title = str_replace('"','\"',$title); 
     $body = str_replace('\\','\\\\',$body);
@@ -3966,148 +3990,125 @@ function sendCloud($from, $to, $token, $ios, $isBackground, $isInApp, $title, $b
     $meta = str_replace('\\','\\\\',$meta);
     $meta = str_replace('"','\"',$meta);
 
-    if ($isBackground) {
-        $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.'},"notification":{"title":"'.$title.'","body":"'.$body.'"}}';
-    }
-    else if ($title != null) {
-        $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.',"title":"'.$title.'","body":"'.$body.'"}}';
-    }
-    else {
-        $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.'}}';        
-    }
-    
-    $options = array(
-        "ssl" => array(
-            "verify_peer" => false,
-            "verify_peer_name" => false,
-        ),
-        'http' => array(
-            'header'  => "Content-Type:application/json\r\n".
-            "Authorization:key=".$conn::FIREBASE_KEY."\r\n",
-            'method'  => 'POST',
-            'content' => $data
-        )
-    );
-    $context  = stream_context_create($options);   
-    $result = file_get_contents($url, false, $context);
-
-    //for logging
-    sqlinsert("log_errors", array(
-        "RequestID"=>array("i",$requestID),
-        "Time"=>array("s",date("Y-m-d H:i:s",time())),
-        "Content"=>array("s",truncateString($data." --- ".$result, $maxLogLength)),
-    ),false);
-
-    //can't insert emoji string to Content.
-    
-    if ($result === false) {
-        sqlinsert("log_errors", array(
-            "RequestID"=>array("i",$requestID),
-            "Time"=>array("s",date("Y-m-d H:i:s",time())),
-            "Content"=>array("s","Error sending message notification."),
-        ),false);
-    }
-    else if (!strstr($result,'"success":1')) {
-        sqlinsert("log_errors", array(
-            "RequestID"=>array("i",$requestID),
-            "Time"=>array("s",date("Y-m-d H:i:s",time())),
-            "Content"=>array("s",truncateString($result." --- ".$to, $maxLogLength)),
-        ),false);
-    }
-    /*}
-    else {        
+    if ($ios) {
         if ($isBackground) {
-            $data='{"aps":{"alert":"'.$title.'","type":"'.$type.'","content":"'.$content.'","inapp":'.$isInApp.'}}';
+            $data='{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.',"aps":{"alert":{"title":"'.$title.'","body":"'.$body.'"}}}';
         }
         else if ($title != null) {
-            $data='{"to":"'.$to.'","data":{"type":"'.$type.'","title":"'.$title.'","body":"'.$body.'","content":"'.$content.'","inapp":'.$isInApp.'}}';
+            $data='{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.',"title":"'.$title.'","body":"'.$body.'","aps":{"content-available":1,"sound":""}}';
         }
         else {
-            $data='{"to":"'.$to.'","data":{"type":"'.$type.'","content":"'.$content.'","inapp":'.$isInApp.'}}';        
+            $data='{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.',"aps":{"content-available":1,"sound":""}}';        
         }
 
-        $data='{"aps":{"alert":"'.$title.'"}}';
-
-        insertError($data);
-
-        $keyfile = "AuthKey_29FQTQSV9N.p8";
-        $kid="29FQTQSV9N";
-        $iss="U33242H3P9";
-
-        //https://stackoverflow.com/questions/47646162/unexpected-http-1-x-request-post-3-device-xxxx
-        $private_key=JWKFactory::createFromKeyFile($keyfile, null, [
-            'kid' => $kid,
-            'alg' => 'ES256',
-            'use' => 'sig'
-        ]);
-        
-        $header=[
-            'alg' => 'ES256',
-            'kid' => $private_key->get('kid')
-        ];       
-        $payload = [
-            'iss' => $iss,
-            'iat' => time()
+        $options = [
+            'key_id' => $conn::KID, // The Key ID obtained from Apple developer account
+            'team_id' => $conn::ISS, // The Team ID obtained from Apple developer account
+            'app_bundle_id' => $conn::BUNDLE_ID, // The bundle ID for app obtained from Apple developer account
+            'private_key_path' => $conn::KEY_FILE, // Path to private key
+            'private_key_secret' => null
         ];
-
-        //Error: Class JWSFactory not found
-        $jws=JWSFactory::createJWSToCompactJSON($payload, $private_key, $header);
-
-        var_dump("NEW key ID: " + $private_key->get('kid'));
-        var_dump("Private key: ".$private_key);
-        var_dump("Jws: ".$jws);
-
-        //https://medium.com/chefling/push-notification-with-json-web-token-33afb5af071e
-        $token = getToken($keyfile, $kid, $iss);
-        $url="https://api.development.push.apple.com:443/3/device/".urlencode($to);
-        $curl = curl_init();
-        $headers = array("Content-Type:application/json", "authorization: bearer ".$token, "apns-expiration: 0", "apns-priority: 10", "apns-topic: balintfodor.locationconnection-test");
-        curl_setopt($curl, CURLOPT_URL, $url); //No url set! error if defined in options
-        $options = array($curl, array(            
-            CURLOPT_PORT => 443,
-            CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_POST => TRUE,
-            CURLOPT_POSTFIELDS => $data,
-            CURLOPT_RETURNTRANSFER => TRUE,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_SSL_VERIFYPEER => FALSE,
-            CURLOPT_HEADER => 1,
-            //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1
-        ));
-
-        print " --- ";
-
-        $result = curl_exec($curl);
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE); 
-        $err = curl_error($curl);  
         
-        print " ----- ";
+        $authProvider = AuthProvider\Token::create($options);
+        $jwt=$authProvider->get();
 
-        var_dump($httpcode, $result, $err);
+        $url = "https://api.push.apple.com/3/device/".$token; //api.development.push.apple.com
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_PORT, 443);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type:application/json", "authorization: bearer ".$jwt, "apns-expiration: 0", "apns-priority: 10", "apns-topic: ".$conn::BUNDLE_ID));
+        $response = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         
-        Gives error: Unexpected HTTP/1.x request: POST /3/device/...
+        //for logging
+        sqlinsert("log_errors", array(
+            "RequestID"=>array("i",$requestID),
+            "Time"=>array("s",date("Y-m-d H:i:s",time())),
+            "Content"=>array("s",truncateString("iOS ".$data, $maxLogLength)),
+        ),false);
+        //Alternatively
+        //https://github.com/Altaibaatar/APNS-with-auth-key-p8-using-PHP
 
-        $url="https://api.development.push.apple.com:443/3/device/".urlencode($to);
+        /*require_once("inc_jwt_helper.php");
+
+        $authKey = $conn::KEY_FILE;
+        $arParam['teamId'] = $conn::ISS;// Get it from Apple Developer's page
+        $arParam['authKeyId'] = $conn::KID;
+        $arClaim = ['iss'=>$arParam['teamId'], 'iat'=>time()];
+
+        $arParam['p_key'] = file_get_contents($conn::KEY_FILE);
+
+        $jwt = JWT::encode($arClaim, $arParam['p_key'], $arParam['authKeyId'], 'RS256');
+        
+        $url = "https://api.development.push.apple.com/3/device/".$token;
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_PORT, 443);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type:application/json", "authorization: bearer ".$jwt, "apns-expiration: 0", "apns-priority: 10", "apns-topic: ".$conn::BUNDLE_ID));
+        $response = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);*/
+
+        /*if ($httpcode != 200) {
+            print "$response\n$httpcode";
+            die();
+        }*/
+    }
+    else {
+        if ($isBackground) {
+            $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.'},"notification":{"title":"'.$title.'","body":"'.$body.'"}}';
+        }
+        else if ($title != null) {
+            $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.',"title":"'.$title.'","body":"'.$body.'"}}';
+        }
+        else {
+            $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.'}}';        
+        }
+        
+        $url="https://fcm.googleapis.com/fcm/send"; 
+        
         $options = array(
             "ssl" => array(
                 "verify_peer" => false,
                 "verify_peer_name" => false,
             ),
-            "http" => array(
+            'http' => array(
                 'header'  => "Content-Type:application/json\r\n".
-                "authorization:bearer ".$conn::APN_KEY."\r\n".
-                "apns-expiration:0\r\n".
-                "apns-priority:10\r\n".
-                "apns-topic:balintfodor.locationconnection-test\r\n",
+                "Authorization:key=".$conn::FIREBASE_KEY."\r\n",
                 'method'  => 'POST',
                 'content' => $data
             )
         );
-        $context  = stream_context_create($options);      
+        $context  = stream_context_create($options);   
         $result = file_get_contents($url, false, $context);
 
-        var_dump($http_response_header, $result, $url);               
-    }*/       
+        //for logging
+        sqlinsert("log_errors", array(
+            "RequestID"=>array("i",$requestID),
+            "Time"=>array("s",date("Y-m-d H:i:s",time())),
+            "Content"=>array("s",truncateString($data." --- ".$result, $maxLogLength)),
+        ),false);
+
+        //can't insert emoji string to Content.
+        
+        if ($result === false) {
+            sqlinsert("log_errors", array(
+                "RequestID"=>array("i",$requestID),
+                "Time"=>array("s",date("Y-m-d H:i:s",time())),
+                "Content"=>array("s","Error sending message notification."),
+            ),false);
+        }
+        else if (!strstr($result,'"success":1')) {
+            sqlinsert("log_errors", array(
+                "RequestID"=>array("i",$requestID),
+                "Time"=>array("s",date("Y-m-d H:i:s",time())),
+                "Content"=>array("s",truncateString($result." --- ".$to, $maxLogLength)),
+            ),false);
+        }
+    }       
 }
 
 /*function appendLog($file, $text) { //google cloud does not support file_put_contents(,,FILE_APPEND), or fopen(). file_get_contents would fail on a non-existent file.
