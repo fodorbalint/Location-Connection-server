@@ -688,18 +688,19 @@ else if (isset($_POST["homepagemessages"])) {
     ),false);
     
     require("mail.php");
-    $res=sendMail("New home page message", $content);
+    $res=sendMail("New homepage message", $content);
     if ($res !== true) {
         insertError($res);
     }
     
+    if (!isset($_GET["page"])) {
+        $_GET["page"]="home";
+    }    
     switch($_GET["page"]) {
-        case "ios":
-            $page="ios";
-            break;
         case "helpcenter":
             $page="helpcenter";
             break;
+        case "home":
         default:
             $page="home";
             break;
