@@ -716,9 +716,6 @@ else if (isset($_GET["page"])) {
         case "screenshots":
             MainPage("screenshots");
             break;
-        case "ios":
-            MainPage("ios");
-            break;
         case "helpcenter":
             MainPage("helpcenter");
             break;
@@ -761,20 +758,19 @@ function MainPage($page, $result="") {
     $content=file_get_contents("$page.html");
     if ($page=="screenshots") {
         $images=array(
-            "Screenshot_20191222_180003_balintfodor.locationconnection.jpg",
-            "Screenshot_20191231_173422_balintfodor.locationconnection.jpg",
-            "Screenshot_20191223_143941_balintfodor.locationconnection.jpg",
-            "Screenshot_20191221_195806_balintfodor.locationconnection.jpg",
-            "Screenshot_20191221_200020_balintfodor.locationconnection.jpg",
-            "Screenshot_20191222_184337_balintfodor.locationconnection.jpg",
-            "Screenshot_20191221_200859_balintfodor.locationconnection.jpg",
-            "Screenshot_20191219_084149_balintfodor.locationconnection.jpg",         
-            "Screenshot_20191231_131847_balintfodor.locationconnection.jpg"            
+            "Screenshot_2020-05-31-11-46-22.jpg",
+            "Screenshot_2020-05-31-11-50-42.jpg",
+            "Screenshot_2020-06-13-23-41-06.jpg",
+            "Screenshot_2020-05-31-11-52-12.jpg",
+            "Screenshot_2020-06-13-23-58-20.jpg",
+            "Screenshot_2020-04-07-14-08-14.jpg",
+            "Screenshot_2020-04-07-14-08-28.jpg",
+            "Screenshot_2020-05-31-11-56-02.jpg"            
         );
         $counter=0;
         $str="";
         $imagew=320;
-        $imageh=512;
+        $imageh=569;
         foreach ($images as $image) {
             $left=$counter%3*($imagew+10)+10;
             $top=($counter-$counter%3)/3*($imageh+10)+10;            
