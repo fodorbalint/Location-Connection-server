@@ -689,6 +689,7 @@ else if (isset($_POST["homepagemessages"])) {
     
     require("mail.php");
     $res=sendMail("New homepage message", $content);
+    //on localhost, returns "0 "
     if ($res !== true) {
         insertError($res);
     }
@@ -759,13 +760,14 @@ function MainPage($page, $result="") {
     if ($page=="screenshots") {
         $images=array(
             "Screenshot_2020-05-31-11-46-22.jpg",
-            "Screenshot_2020-05-31-11-50-42.jpg",
+            "Screenshot_2020-06-16-09-26-53.jpg",
             "Screenshot_2020-06-13-23-41-06.jpg",
             "Screenshot_2020-05-31-11-52-12.jpg",
             "Screenshot_2020-06-13-23-58-20.jpg",
             "Screenshot_2020-04-07-14-08-14.jpg",
             "Screenshot_2020-04-07-14-08-28.jpg",
-            "Screenshot_2020-05-31-11-56-02.jpg"            
+            "Screenshot_2020-05-31-11-56-02.jpg",
+            "Screenshot_2020-06-15-17-53-30.jpg"            
         );
         $counter=0;
         $str="";

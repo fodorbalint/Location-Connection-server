@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Location Connection</title>
+<style>
+body {
+    position: absolute;
+    top: 0;
+    left: 0;
+    min-height: 100%;
+    width: 100%;
+    margin:auto;
+    display: flex;
+    flex-flow: row; 
+} 
+
+#centersection {
+    width:1000px;
+    min-height:100%;
+    font-family: Verdana;
+    font-size:14px;       
+}
+
+#menu1 {
+    width:calc(19% - 1px);      
+}
+
+#menu2 {
+    width: calc(27% - 1px);      
+}
+
+#menu3 {
+    width: calc(26% - 1px);      
+}
+
+#menu4 {
+    width: 28%;      
+}  
+     
+#menucontainer {
+    width:100%;
+    height:40px;
+    font-size:16px;
+}
+
+.screenshot {
+    position:absolute;
+    -webkit-transition: width 0.5s, height 0.5s, left 0.5s, top 0.5s; /* Safari prior 6.1 */
+    transition: width 0.5s, height 0.5s, left 0.5s, top 0.5s;     
+}
+
+#galleryFade {      
+    position:absolute;
+    background-color:#AAAAAA;      
+    left:0px;
+    top:0px;
+    width:0px;
+    height:0px;
+    z-index:100;
+    opacity:0;
+    -webkit-transition: opacity 0.5s;
+    transition: opacity 0.5s;
+}  
+
+/* sin gradient:
+value = 128 + sin (10/100*90 deg) * 127
+*/
+#leftsection {       
+    flex-grow : 1;
+    background-image: linear-gradient(to left,
+        rgb(128,128,128),
+        rgb(148,148,148) 10%,
+        rgb(167,167,167) 20%,
+        rgb(186,186,186) 30%,
+        rgb(203,203,203) 40%,
+        rgb(218,218,218) 50%,
+        rgb(231,231,231) 60%,
+        rgb(241,241,241) 70%,
+        rgb(249,249,249) 80%,
+        rgb(253,253,253) 90%,
+        rgb(255,255,255));
+    background-size: 50px 100%;
+    background-repeat: no-repeat;
+    background-position: right;
+}
+
+#rightsection {
+    flex-grow : 1;
+    background-image: linear-gradient(to right,
+        rgb(128,128,128),
+        rgb(148,148,148) 10%,
+        rgb(167,167,167) 20%,
+        rgb(186,186,186) 30%,
+        rgb(203,203,203) 40%,
+        rgb(218,218,218) 50%,
+        rgb(231,231,231) 60%,
+        rgb(241,241,241) 70%,
+        rgb(249,249,249) 80%,
+        rgb(253,253,253) 90%,
+        rgb(255,255,255));
+    background-size: 50px 100%;
+    background-repeat: no-repeat;
+    background-position: left;         
+}
+  
+.menu {
+    height:100%;          
+    background-image: linear-gradient(to bottom, #4acf8c, #c3efd9);  /* 55% rgb(74, 207, 140) to 85% rgb(195, 239, 217) */
+    float:left;
+    text-align:center; 
+    font-weight:normal;
+    line-height:40px; 
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                              supported by Chrome, Opera and Firefox */  
+} 
+
+.menuselected {
+    height:100%;          
+    background-image: linear-gradient(to bottom, #2ba166, #86dfb3); /* 40% rgb(43, 161, 102) to 70% rgb(134, 223, 179) */
+    float:left;
+    text-align:center; 
+    font-weight:normal;
+    line-height:40px; 
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                              supported by Chrome, Opera and Firefox */  
+}
+       
+.menu:hover {           
+    background-image: linear-gradient(to bottom, #2ba166, #86dfb3); /* 40-70% */
+    cursor:pointer;   
+}
+
+.menuselected:hover {
+    background-image: linear-gradient(to bottom, #2ba166, #86dfb3);
+    cursor:pointer;
+}
+
+.menu:active {           
+    background-image: linear-gradient(to bottom, #20794d, #4acf8c); /* 30-55% */          
+}
+
+.menuselected:active {
+    background-image: linear-gradient(to bottom, #20794d, #4acf8c);
+}    
+           
+.menuseparator {
+    width:1px;
+    height:100%;
+    background-color:#210e1b;
+    float:left;
+}
+       
+#bodycontent {
+    width:100%;
+}
+
+/* home */
+
+.header {
+    width:1000px;
+    height:90px;      
+    padding-right:90px;
+    text-align:right;
+    display: table-cell;
+    vertical-align:middle;
+    position:relative;         
+} 
+ 
+#logo {
+    position:absolute;
+    top:10px;
+    right:10px;        
+}
+
+#headertitle {
+    display:block;
+    font-size:25px;
+}
+
+#headersubtitle {
+    display:block;
+    font-size:13px;
+}
+
+.counter {
+    padding-left:15px;
+    padding-bottom:5px;
+}
+
+.circle {
+    margin-right:3px;
+}
+
+.feature {
+    padding-left:15px;
+    font-size:20px;
+}
+
+.contentMain {
+    padding-top:15px;
+    padding-bottom:25px;
+    padding-left:15px;
+    padding-right:15px;
+}
+
+.separator {
+    background-color:#000000;
+    width:100%;
+    height:1px;
+}
+
+.feature2 {
+    padding-left:10px;
+    padding-top:10px;
+    padding-bottom:10px;
+    background-color:#f6e2bc;
+    font-size:20px;
+}
+
+ul {
+    margin-top:0px;
+    padding-left:15px;
+}
+
+/* IOS, FAQ */
+
+.content {
+    padding-top:15px;
+    padding-bottom:15px;
+    padding-left:15px;
+    padding-right:15px;
+}
+
+.ios {
+    width:90%;
+    margin-top:20px;
+    margin-bottom:20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.question {
+    font-weight:bold;
+    margin-top:5px;
+    margin-bottom:10px;
+}
+
+#feedback {
+    width:100%;
+}
+
+#messagebox {
+    height:100px;
+    margin-top:20px;
+    margin-bottom:10px;
+    font-family: Verdana;
+}
+
+#sendbutton {
+    font-size:16px;
+    padding-left:10px;
+    padding-right:10px;
+    padding-top:5px;
+    padding-bottom:5px;
+}
+</style>
+<!-- Global site tag (gtag.js) - Google Ads: XXXXXXXXX -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-XXXXXXXXX"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'AW-XXXXXXXXX');
+</script>
+  
+<div id="leftsection"></div>
+<div id="centersection">
+    <div id="menucontainer">
+        <div id="menu1" onclick="go('home')" class="menu">Home</div><div class="menuseparator"></div>
+        <div id="menu2" onclick="go('screenshots')" class="menu">Screenshots</div><div class="menuseparator"></div>
+        <div id="menu3" onclick="go('helpcenter')" class="menu">Help center</div><div class="menuseparator"></div> 
+        <div id="menu4" onclick="go('legal')" class="menu">Legal</div>
+    </div>
+    <div class="separator"></div>
+    <div id="bodycontent">
+        [content] 
+    </div>
+</div>
+<div id="rightsection"></div>
+<script>
+
+function goToStore(link) {
+    // Event snippet for Website traffic conversion page
+    gtag('event', 'conversion', {'send_to': 'AW-XXXXXXXXX/XXXXXXXXX'});
+    window.location.href=link;
+}
+
+page="[page]";
+[result]
+imgRatio=320/569;
+zoomed=false; 
+zoomedIndex=-1; 
+transitionDuration=500;
+scrollBetweenInterval=100;
+scrollAfterInterval=500;
+clickEnabled=true; 
+timer=null;
+timer2=null;
+isScrolling=false;
+clickRequested=false;
+clickImage=null;
+clickPos=null;
+rules=document.styleSheets[0].cssRules; 
+var screenW;
+var screenH;
+
+if (!detectmob()) {
+    rules[2].style.width="calc(25% - 1px)";
+    rules[3].style.width="calc(25% - 1px)";
+    rules[4].style.width="calc(25% - 1px)";
+    rules[5].style.width="25%";
+    rules[7].style.cursor="pointer"; //on mobile the picture would be selected when clicking on it
+    rules[8].style.cursor="pointer";
+    screenW=document.documentElement.offsetWidth; //clientWidth returns the number of pixels on Samsung S20
+    screenH=document.documentElement.clientHeight;
+}
+else {
+    rules[1].style.width="100%"; 
+    if (screenW < 500) {
+        rules[6].style.fontSize="14px";
+    }
+    screenW=window.innerWidth; //document.documentElement.clientWidth returns the number of pixels on Samsung S20
+    screenH=window.innerHeight;
+}
+
+if (page=="screenshots") {
+    window.onresize=windowResized;
+    window.onscroll=windowScrolled;
+    
+    pics = document.getElementsByClassName("screenshot");    
+    resizePics();
+}
+else if (page=="home" && detectmob()) {
+    if (screenW < 485) { //space needed for the badges: 20 / 228 / 20 / 204 / 20
+        document.getElementById("googleplaybadge").style.width = (screenW - 60) * 228 / (228 + 204) + "px";
+        document.getElementById("googleplaybadge").style.height = "auto";
+        document.getElementById("appstorebadge").style.width = (screenW - 60) * 204 / (228 + 204) + "px";
+        document.getElementById("appstorebadge").style.height = "auto";
+    }
+    if (screenW < 700) {
+        document.getElementById("aboutContent").style.width="100%"; //30 px is the inside padding
+        document.getElementById("aboutContentText").style.padding = "0px 15px 5px 15px";
+    }
+}
+
+if (document.getElementById("messagebox") != null) {
+    //textbox overflows the container by default, and setting padding to feedback would only enlarge it.
+    document.getElementById("messagebox").style.width = document.getElementById("feedback").offsetWidth-6 + "px";
+} 
+
+function showContactForm() {
+    if (document.getElementById("messageform").style.display == "none") {
+        document.getElementById("messageform").style.display="block";
+        document.getElementById("messagebox").style.width = document.getElementById("feedback").offsetWidth-6 + "px";
+
+        setTimeout(function() {
+            document.getElementById("messagebox").focus();
+        }, 0);
+    }
+    else {
+        document.getElementById("messageform").style.display="none";
+    }
+} 
+
+function detectmob() { 
+    if( navigator.userAgent.match(/Android/i)
+    || navigator.userAgent.match(/webOS/i)
+    || navigator.userAgent.match(/iPhone/i)
+    || navigator.userAgent.match(/iPad/i)
+    || navigator.userAgent.match(/iPod/i)
+    || navigator.userAgent.match(/BlackBerry/i)
+    || navigator.userAgent.match(/Windows Phone/i)
+    )
+    {
+        mobile=true;
+        return true;
+    }
+    else
+    {
+        mobile=false;
+        return false;
+    }
+}
+
+function go(link) {
+    //alert(window.location.protocol + "//" +  window.location.hostname + "/?page=" + link);
+    window.location.href=window.location.protocol + "//" +  window.location.hostname + "/?page=" + link;
+}
+
+//----- screenshots -----
+
+function windowResized() {
+    //when pulling down the page, the address bar disappears on mobile, but clientHeight does not change.
+    //on startup window.innerWidth shows 990 for 628 and 1387 for 880 on tablet, and 990 for 360 and 1424 for 518 for mobile.
+    screenW=(mobile)?window.innerWidth:document.documentElement.clientWidth;
+    screenH=(mobile)?window.innerHeight:document.documentElement.clientHeight;
+    resizePics();
+}      
+
+function windowScrolled() {
+    //after clicking on a picture shortly after scrolling page on mobile, all the following pictures will appear in foreground as having a larger z-index. A timeout must be set.
+    if (zoomed) {
+        zoomOutImage();
+    }
+    else if (mobile) { 
+        if (timer == null) {
+            isScrolling=true;
+            clickRequested=false;
+        }
+        else {
+            clearTimeout(timer);
+        }   
+        timer = setTimeout(setScrollTimer,scrollBetweenInterval); 
+    } 
+}
+
+function setScrollTimer() {
+    timer=null;
+    if (timer2 != null) {
+        clearTimeout(timer2);
+    }
+    timer2=setTimeout(scrollFinished,scrollAfterInterval);   
+}
+
+function scrollFinished() {
+    timer2=null;
+    if (timer == null) { //no new scroll started
+        //alert("click");
+        isScrolling=false;
+        
+        if (clickRequested) {
+            clickRequested=false;
+            zoomImage(clickImage,clickPos);
+            clickImage=null;
+            clickPos=null;
+        }
+    }
+} 
+
+function resizePics() { 
+    var viewportOffset = document.getElementById("screenshotcontainer").getBoundingClientRect();
+    var containerWidth=document.getElementById("screenshotcontainer").offsetWidth;     
+    containerTop = viewportOffset.top + window.pageYOffset;
+    containerLeft = viewportOffset.left + window.pageXOffset;
+    padding=containerWidth/100;
+    imageW=(containerWidth-4*containerWidth/100)/3;
+    imageH=imageW/imgRatio;
+            
+    for(i=0;i<pics.length;i++) {
+        var top=setOrigSize(i); //even if the last image is zoomed, we need to reserve the space
+        if (i == zoomedIndex) {
+            setZoomedSize(pics[i]);    
+        }   
+    }
+    document.getElementById("screenshotcontainer").style.height=(top+imageH+padding)+"px";
+}
+
+function setOrigSize(i) {
+    var left=i%3*(imageW+padding)+padding;
+    var top=(i-i%3)/3*(imageH+padding)+padding;
+    if (i != zoomedIndex) {
+        pic=pics[i];
+        pic.style.width=imageW + "px";
+        pic.style.height=imageH + "px";
+        pic.style.top=top + "px";
+        pic.style.left=left + "px";
+        setTimeout(transitionEnd, transitionDuration, i)
+    }        
+    return top;
+}
+
+function setZoomedSize(image) {
+    if (screenW/screenH > imgRatio) { //screen is wider
+        var fullW=imgRatio*screenH;
+        var screenPosX=(screenW-fullW)/2;
+        image.style.top=(-containerTop + window.pageYOffset) + "px";
+        image.style.left=((screenW-fullW)/2-containerLeft + window.pageXOffset) + "px"; 
+        image.style.width=fullW + "px";
+        image.style.height=screenH + "px";
+    }
+    else {
+        var fullH=screenW/imgRatio;
+        var screenPosY=(screenH-fullH)/2;
+        image.style.top=((screenH-fullH)/2-containerTop + window.pageYOffset) + "px";
+        image.style.left=(-containerLeft + window.pageXOffset) + "px"; 
+        image.style.width=screenW + "px";
+        image.style.height=fullH + "px";          
+    }
+    image.style.zIndex=101;
+    var gstyle=document.getElementById("galleryFade").style;
+    gstyle.opacity=0.9;
+    gstyle.left=-containerLeft + "px";
+    gstyle.top=-containerTop + "px";
+    gstyle.width=document.body.offsetWidth + "px";
+    gstyle.height=document.body.offsetHeight + "px";
+}
+
+function restoreSize(i) {
+    var left=i%3*(imageW+padding)+padding;
+    var top=(i-i%3)/3*(imageH+padding)+padding;
+    image=pics[i];
+    image.style.width=imageW + "px";
+    image.style.height=imageH + "px";
+    image.style.top=top + "px";
+    image.style.left=left + "px";
+    document.getElementById("galleryFade").style.opacity=0;
+    setTimeout(transitionEnd, transitionDuration, i)
+}
+
+function transitionEnd(i) {
+    pics[i].style.zIndex=i;
+    var gstyle=document.getElementById("galleryFade").style;
+    gstyle.left="0px"; //leaving size would make leave the page scrollbars on
+    gstyle.top="0px";
+    gstyle.width="0px";
+    gstyle.height="0px";     
+    clickEnabled=true;
+}
+
+function enableClick() {
+    clickEnabled=true;
+}
+
+function zoomImage(image,pos) {
+    if (!isScrolling && clickEnabled) {
+        clickEnabled=false;
+        if (!zoomed) {  
+            zoomed=true;
+            zoomedIndex=pos;          
+            setZoomedSize(image); 
+            setTimeout(enableClick, transitionDuration, i)
+        }
+        else {        
+            restoreSize(pos); 
+            zoomed=false;
+            zoomedIndex=-1;                  
+        } 
+    }
+    else if (isScrolling) {
+        clickRequested=true;
+        clickImage=image;
+        clickPos=pos;
+    }               
+}
+
+function zoomOutImage() {
+    zoomImage(pics[zoomedIndex],zoomedIndex);
+}
+</script>
