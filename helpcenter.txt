@@ -110,13 +110,7 @@ Is my location timeline visible to others?
 
 No, it is personal; the server only stores your newest location data.
 You can see your location of the last 24 hours, and it is tied to device, not user. (If you log in as another user, the history will remain.)
-If you are using Android, Expect background updates to stop some time after closing the app, especially if your device is not on charger, but in-app updates should be constant.
-On iOS, background updates do not exist due to store policy.
-
-What do the list item colors mean in Location history?
-
-Android: green - in-app update, orange - background update
-iOS: green - in-app update which is not shared, pink - location data you sent by clicking the "Update location" button on your profile page
+Location is acquired only while you are using the app. On iOS, times marked with pink indicate the items you sent to the server by clicking the "Update location" button on your profile page.
 
 The profile I am looking at has a long name/username, and it gets truncated. How can I see it?
 

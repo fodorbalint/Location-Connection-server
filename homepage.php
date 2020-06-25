@@ -142,6 +142,7 @@ $matchBackgroundDefault="True";
 $messageBackgroundDefault="True";
 $unmatchBackgroundDefault="True";
 $rematchBackgroundDefault="True";
+$backgroundLocationDefault="False";
 $locationAccuracyDefault=0;
 $inAppLocationRateDefault=60;
 $backgroundLocationRateDefault=600;
@@ -668,7 +669,11 @@ if (isset($_GET["action"])) {
         }    
     } 
     else if ($_GET["action"]=="eula") {
-        $text=file_get_contents("eula.html");  
+        $text=file_get_contents("eula.html");
+        $ios=isset($_GET["ios"])?$_GET["ios"]:1;
+        if (!$ios) {
+            $text=str_replace("<li>", "<li>&nbsp;", $text);
+        }           
         $link="https://locationconnection.me/?page=legal#terms"; 
         $text=str_replace("[link]","on <a href=\"$link\">$link</a>",$text);
         $result="OK;$text";
@@ -1446,7 +1451,7 @@ function validateField($key, $value) {
 }
 
 function registerUser() {
-    global $conn, $tempUploadFolder, $uploadFolder, $userip, $listTypeDefault, $sortByDefault, $orderByDefault, $geoFilterDefault, $geoSourceOtherDefault,$distanceLimitDefault, $resultsFromDefault, $matchInAppDefault, $messageInAppDefault, $unmatchInAppDefault, $rematchInAppDefault, $matchBackgroundDefault, $messageBackgroundDefault, $unmatchBackgroundDefault, $rematchBackgroundDefault, $locationAccuracyDefault, $inAppLocationRateDefault, $backgroundLocationRateDefault;
+    global $conn, $tempUploadFolder, $uploadFolder, $userip, $listTypeDefault, $sortByDefault, $orderByDefault, $geoFilterDefault, $geoSourceOtherDefault,$distanceLimitDefault, $resultsFromDefault, $matchInAppDefault, $messageInAppDefault, $unmatchInAppDefault, $rematchInAppDefault, $matchBackgroundDefault, $messageBackgroundDefault, $unmatchBackgroundDefault, $rematchBackgroundDefault, $backgroundLocationDefault, $locationAccuracyDefault, $inAppLocationRateDefault, $backgroundLocationRateDefault;
     
     $regsessionid=$_GET["regsessionid"];
     unset($_GET["action"], $_GET["regsessionid"]);
@@ -1514,7 +1519,7 @@ function registerUser() {
     $profiledata["ResponseRate"]=array("d",1);
     $profiledata["IP"]=array("s",$userip);
     
-    $profilesettings["BackgroundLocation"]=array("i",1);
+    $profilesettings["BackgroundLocation"]=array("i",($backgroundLocationDefault=="False")?0:1);
     $profilesettings["ActiveAccount"]=array("i",1);
     $profilesettings["ListType"]=array("s",$listTypeDefault);
     $profilesettings["SortBy"]=array("s",$sortByDefault);
@@ -1538,7 +1543,7 @@ function registerUser() {
     $profilesettings["BackgroundLocationRate"]=array("i",$backgroundLocationRateDefault);
     
     //Defaults
-    $returnstr.="RegisterDate:$time,LastActiveDate:$time,ResponseRate:1,BackgroundLocation:True,ActiveAccount:True,ListType:$listTypeDefault,SortBy:$sortByDefault,OrderBy:$orderByDefault,GeoFilter:$geoFilterDefault,GeoSourceOther:$geoSourceOtherDefault,DistanceLimit:$distanceLimitDefault,ResultsFrom:$resultsFromDefault,MatchInApp:$matchInAppDefault,MessageInApp:$messageInAppDefault,UnmatchInApp:$unmatchInAppDefault,RematchInApp:$rematchInAppDefault,MatchBackground:$matchBackgroundDefault,MessageBackground:$messageBackgroundDefault,UnmatchBackground:$unmatchBackgroundDefault,RematchBackground:$rematchBackgroundDefault,LocationAccuracy:$locationAccuracyDefault,InAppLocationRate:$inAppLocationRateDefault,BackgroundLocationRate:$backgroundLocationRateDefault,";
+    $returnstr.="RegisterDate:$time,LastActiveDate:$time,ResponseRate:1,BackgroundLocation:$backgroundLocationDefault,ActiveAccount:True,ListType:$listTypeDefault,SortBy:$sortByDefault,OrderBy:$orderByDefault,GeoFilter:$geoFilterDefault,GeoSourceOther:$geoSourceOtherDefault,DistanceLimit:$distanceLimitDefault,ResultsFrom:$resultsFromDefault,MatchInApp:$matchInAppDefault,MessageInApp:$messageInAppDefault,UnmatchInApp:$unmatchInAppDefault,RematchInApp:$rematchInAppDefault,MatchBackground:$matchBackgroundDefault,MessageBackground:$messageBackgroundDefault,UnmatchBackground:$unmatchBackgroundDefault,RematchBackground:$rematchBackgroundDefault,LocationAccuracy:$locationAccuracyDefault,InAppLocationRate:$inAppLocationRateDefault,BackgroundLocationRate:$backgroundLocationRateDefault,";
     
     $ID=sqlinsert("profiledata",$profiledata,true);
      
@@ -1561,7 +1566,7 @@ function registerUser() {
     
     $sessionid=password_hash($Hash, PASSWORD_DEFAULT, ["cost" => 10]);
     $token=(isset($_GET["token"]))?$_GET["token"]:null;
-    $ios=(isset($_GET["ios"]))?$_GET["ios"]:0;    
+    $ios=isset($_GET["ios"])?$_GET["ios"]:0;    
     $session=array("ID"=>array("i",$ID), "Session"=>array("s",$sessionid), "Token"=>array("s",$token), "iOS" => array("i",$ios), "RegSession"=>array("s",$regsessionid));
     sqlinsert("session",$session,false); 
     
