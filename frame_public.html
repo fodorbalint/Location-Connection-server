@@ -21,20 +21,24 @@ body {
 }
 
 #menu1 {
-    width:calc(19% - 1px);      
+    width: calc(15% - 1px);      
 }
 
 #menu2 {
-    width: calc(27% - 1px);      
-}
-
-#menu3 {
     width: calc(26% - 1px);      
 }
 
+#menu3 {
+    width: calc(24% - 1px);      
+}
+
 #menu4 {
-    width: 28%;      
-}  
+    width: calc(15% - 1px);      
+} 
+
+#menu5 {
+    width: 20%;      
+} 
      
 #menucontainer {
     width:100%;
@@ -290,7 +294,8 @@ ul {
         <div id="menu1" onclick="go('home')" class="menu">Home</div><div class="menuseparator"></div>
         <div id="menu2" onclick="go('screenshots')" class="menu">Screenshots</div><div class="menuseparator"></div>
         <div id="menu3" onclick="go('helpcenter')" class="menu">Help center</div><div class="menuseparator"></div> 
-        <div id="menu4" onclick="go('legal')" class="menu">Legal</div>
+        <div id="menu4" onclick="go('legal')" class="menu">Legal</div><div class="menuseparator"></div> 
+        <div id="menu5" onclick="go('economy')" class="menu">Economy</div>
     </div>
     <div class="separator"></div>
     <div id="bodycontent">
@@ -326,19 +331,20 @@ var screenW;
 var screenH;
 
 if (!detectmob()) {
-    rules[2].style.width="calc(25% - 1px)";
-    rules[3].style.width="calc(25% - 1px)";
-    rules[4].style.width="calc(25% - 1px)";
-    rules[5].style.width="25%";
-    rules[7].style.cursor="pointer"; //on mobile the picture would be selected when clicking on it
-    rules[8].style.cursor="pointer";
+    rules[2].style.width="calc(20% - 1px)";
+    rules[3].style.width="calc(20% - 1px)";
+    rules[4].style.width="calc(20% - 1px)";
+    rules[5].style.width="calc(20% - 1px)";
+    rules[6].style.width="20%";
+    rules[8].style.cursor="pointer"; //on mobile the picture would be selected when clicking on it
+    rules[9].style.cursor="pointer";
     screenW=document.documentElement.offsetWidth; //clientWidth returns the number of pixels on Samsung S20
     screenH=document.documentElement.clientHeight;
 }
 else {
     rules[1].style.width="100%"; 
     if (screenW < 500) {
-        rules[6].style.fontSize="14px";
+        rules[7].style.fontSize="14px";
     }
     screenW=window.innerWidth; //document.documentElement.clientWidth returns the number of pixels on Samsung S20
     screenH=window.innerHeight;

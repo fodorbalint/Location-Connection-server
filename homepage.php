@@ -686,6 +686,12 @@ else if (isset($_POST["homepagemessages"])) {
     global $userip;
     
     $content=$_POST["homepagemessages"];
+    if (isset($_POST["email"])) {
+        $content=$_POST["email"]."\n".$content;
+    }
+    if (isset($_POST["name"])) {
+        $content=$_POST["name"]."\n".$content;
+    }
     sqlinsert("homepage_messages",array(
         "Time"=>array("s",date("Y-m-d H:i:s",time())),
         "Content"=>array("s",$content),
@@ -703,12 +709,15 @@ else if (isset($_POST["homepagemessages"])) {
         $_GET["page"]="home";
     }    
     switch($_GET["page"]) {
+        default:
+        case "home":
+            $page="home";
+            break;
         case "helpcenter":
             $page="helpcenter";
             break;
-        case "home":
-        default:
-            $page="home";
+        case "economy":
+            $page="economy";
             break;
     }
     MainPage($page,"Your message was sent.");    
@@ -727,6 +736,9 @@ else if (isset($_GET["page"])) {
             break;
         case "legal":
             MainPage("legal");
+            break;
+        case "economy":
+            MainPage("economy");
             break;
     } 
 }
@@ -800,6 +812,54 @@ function MainPage($page, $result="") {
     }
     else if ($page == "legal") {
         $content=str_replace("[eula]",str_replace("[link]", "here", file_get_contents("eula.html")),$content);
+    }
+    else if ($page == "economy") {
+        $arr=file("Time_series_2020.05.31-2020.06.27.csv");
+        $table="<table cellspacing='10'>";
+        
+        foreach ($arr as $elem) {
+            $elem=trim($elem); //remove closing \n
+            $table.="<tr>";
+
+            $startpos=0;
+            $column=0;
+            while($startpos < strlen($elem)) {
+                $column++;
+                if ($elem[$startpos] == '"') { //enclosed in "
+                    $pos=strpos($elem, '"', $startpos + 1);
+                    $data=substr($elem, $startpos + 1, $pos - $startpos - 1);
+                    $pos=strpos($elem, ',', $pos + 1);
+                    if ($pos) { //not the last item
+                        $startpos=$pos + 1;
+                    }
+                    else { //last item
+                        $startpos = strlen($elem);
+                    }
+                }
+                else { //not enclosed
+                    $pos=strpos($elem, ',',$startpos);
+                    if ($pos) { //not the last item
+                        $data=substr($elem, $startpos, $pos - $startpos);
+                        $startpos = $pos+1;
+                    }
+                    else { //last item
+                        $data=substr($elem, $startpos);
+                        
+                        $startpos = strlen($elem);
+                    }
+                }
+                if ($column == 4) {
+                    $data=str_replace("DKK", "kr ",$data);
+                }
+                else if ($column == 5) {
+                    $data=str_replace(".00", "",$data);
+                }
+                $table.="<td>".$data."</td>";                
+            }
+            $table.="</tr>";
+        }
+        $table.="</table>";
+        $content=str_replace("[data]",$table,$content);
     }
     
     $frame=str_replace("[content]",$content,$frame);
