@@ -112,7 +112,11 @@ else {
                 ),false);
             }        
             readfile($file);
-            die();     
+            die(); 
+        case "pres":
+            require "pres.php";
+            print getPresentation(0);
+            die();      
         case "": //api request
             break;    
         default:
@@ -774,6 +778,12 @@ function MainPage($page, $result="") {
     $frame=str_replace("onclick=\"go('$page')\" class=\"menu\"","onclick=\"go('$page')\" class=\"menuselected\"",$frame);
     
     $content=file_get_contents("$page.html");
+    if ($page=="home") {
+        require "pres.php";
+        $content=str_replace("[presentation]", getPresentation(1), $content);
+        $content=str_replace("https://github.com/fodorbalint/?tab=repositories",'<a href="https://github.com/fodorbalint/?tab=repositories">https://github.com/fodorbalint/?tab=repositories</a>',$content);
+        $content=str_replace("at https://locationconnection.me/?page=economy",'<a href="https://locationconnection.me/?page=economy">here</a>',$content);
+    }
     if ($page=="screenshots") {
         $images=array(
             "Screenshot_2020-05-31-11-46-22.jpg",
