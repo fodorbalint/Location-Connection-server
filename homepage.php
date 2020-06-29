@@ -824,7 +824,7 @@ function MainPage($page, $result="") {
         $content=str_replace("[eula]",str_replace("[link]", "here", file_get_contents("eula.html")),$content);
     }
     else if ($page == "economy") {
-        $arr=file("Time_series_2020.05.31-2020.06.27.csv");
+        $arr=file("Time_series.csv");
         $table="<table cellspacing='10'>";
         
         foreach ($arr as $elem) {
