@@ -170,16 +170,16 @@ $secondsInDay=60*60*24;
 $conn->sqlConnect();
 
 $requestID=0;
-//if (!(isset($_GET["action"]) && ($_GET["action"]=="register" || $_GET["action"]=="login" || $_GET["action"]=="loginsession" || $_GET["action"]=="profileedit" || $_GET["action"]=="setpassword" || $_GET["action"]=="changepassword"))) {
-    //if (!in_array($userip, $conn::EXCLUDED_IPS)) {
+if (!(isset($_GET["action"]) && ($_GET["action"]=="register" || $_GET["action"]=="login" || $_GET["action"]=="loginsession" || $_GET["action"]=="profileedit" || $_GET["action"]=="setpassword" || $_GET["action"]=="changepassword"))) {
+    if (!in_array($userip, $conn::EXCLUDED_IPS)) {
         $requestID=sqlinsert("log_input", array(
             "Time"=>array("s",date("Y-m-d H:i:s",time())),
             "URL"=>array("s",removeSession(truncateString($_SERVER["REQUEST_URI"],$maxLogLength))),
             "Response"=>array("s",""),
             "IP"=>array("s",$userip)
         ),true);   
-    //}
-//}
+    }
+}
 
 if (isset($_GET["action"])) {
     if ($_GET["action"] == "reporterror") {
@@ -751,11 +751,11 @@ else {
 }
 
 if ($result != "") {
-    //if (!(isset($_GET["action"]) && ($_GET["action"]=="register" || $_GET["action"]=="login" || $_GET["action"]=="loginsession" || $_GET["action"]=="profileedit" || $_GET["action"]=="setpassword" || $_GET["action"]=="changepassword"))) {
-        //if (!in_array($userip, $conn::EXCLUDED_IPS)) {
+    if (!(isset($_GET["action"]) && ($_GET["action"]=="register" || $_GET["action"]=="login" || $_GET["action"]=="loginsession" || $_GET["action"]=="profileedit" || $_GET["action"]=="setpassword" || $_GET["action"]=="changepassword"))) {
+        if (!in_array($userip, $conn::EXCLUDED_IPS)) {
             sqlupdate("log_input", array("Response"=>array("s",removeSession(truncateString($result,$maxLogLength)))), array("ID"=>array("i",$requestID)));   
-        //}
-    //}
+        }
+    }
     print $result;
 }                   
 
@@ -827,6 +827,7 @@ function MainPage($page, $result="") {
         $arr=file("Time_series.csv");
         $table="<table cellspacing='10'>";
         
+        $arr[0]=str_replace("Conversions", "Installs", $arr[0]);
         foreach ($arr as $elem) {
             $elem=trim($elem); //remove closing \n
             $table.="<tr>";
@@ -858,10 +859,10 @@ function MainPage($page, $result="") {
                         $startpos = strlen($elem);
                     }
                 }
-                if ($column == 4) {
+                if ($column == 5) {
                     $data=str_replace("DKK", "kr ",$data);
                 }
-                else if ($column == 5) {
+                if ($column == 4 || $column == 5) {
                     $data=str_replace(".00", "",$data);
                 }
                 $table.="<td>".$data."</td>";                
@@ -4085,8 +4086,9 @@ function sendCloud($from, $to, $token, $ios, $isBackground, $isInApp, $title, $b
         
         $authProvider = AuthProvider\Token::create($options);
         $jwt=$authProvider->get();
+        
 
-        $url = "https://api.push.apple.com/3/device/".$token; //api.development.push.apple.com
+        $url = isset($_GET["testDB"])?"https://api.development.push.apple.com/3/device/".$token:"https://api.push.apple.com/3/device/".$token;
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_PORT, 443);

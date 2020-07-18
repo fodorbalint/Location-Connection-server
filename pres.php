@@ -22,7 +22,7 @@ function getPresentation($storeVariant) {
         foreach($content as $line) {
             if (trim($line) == "") {
                 $emptycount++;
-                if ($emptycount!=1 && $emptycount!=10) {
+                if ($emptycount!=1) {
                     $contentstart=true;
                     //$out.="</div>";
                     $out=substr($out, 0, strlen($out)-8)."\n</div>\n"; //removing previous line's newline character

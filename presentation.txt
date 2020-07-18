@@ -8,31 +8,28 @@ Creating a profile is needed for interaction only.
 
 - Choose from those who liked you
 Relations are no secret. People who liked or hid you are shown on your lists, and you can of course see those you liked or hid too, should you change your mind.
-Your future is with people who are interested in you - don't waste time on the others.
 
 - Filter by an area of your choice
 You can narrow the results to people who are nearby. Or set another location.
 That is, to find users who shared either their location or distance with you.
-Location sharing is customizable: if you don't want everyone to know, you can limit it to those you liked, matched with, added as friend, or even turn it off completely.
+Location sharing is customizable: if you don't want everyone to know, you can limit it to those you liked, matched with, added as friend, or turn it off completely.
 
 - Search in usernames, names, and introductions
-Although disclosing your age (or other factors) is not required, in addition to text you can also enter a number range to find people who did specify it in their bios.
-Impression is made by photos, stories and information that shows your authenticity. This is also how you:
+Finding a specific person is made easy.
+Although disclosing your age is not required, you can enter a number range, so people who did specify it will show up.
 
-- Control of your visibility
-Forget hidden algorithms, and let your activity decide how often your profile will appear.
-People can sort by last active date, response rate, and register date. It is time to show, you are serious about dating! And don't forget, the sort order can be reversed too.
+- Control your visibility
+Instead of hidden algorithms, your activity determines how often your profile will appear.
+People can sort by last active date, response rate, and register date. Are you serious about dating? Don't forget, the sort order can be reversed too.
 
 - Chat with certainty
-If you ever wondered whether your chat partner has received your messages, I am glad to tell you, you are informed about it here.
-To the limits of technology, messages are marked <i>seen</i> or <i>read</i>, depending on how much of it your match could have seen.
+If you ever wondered whether your chat partner has received your messages, the good news is, you get feedback here.
+As far as technology allows, messages are marked <i>seen</i> or <i>read</i>, depending on how much of it your match could have seen.
 
 - Send location updates
 Should you arrange a date with someone, you can let them know where you are by updating your location at regular intervals.
 If they go into your profile, the map will change accordingly.
 
-Now, you may ask, what is the price?
-Location Connection is an open-source and donation-supported platform, so you will never be asked to pay, and neither will ads distract you while using it.
+You may ask, what is the price?
+Location Connection is an open-source and donation-supported platform, so you will never be asked to pay, and neither will you be distracted by ads.
 See the source code at https://github.com/fodorbalint/?tab=repositories, or the economy at https://locationconnection.me/?page=economy, where you can also get in touch with me with ideas about how to reach more people in your area.
-
-Are you ready to improve your dating life? Give the app a try, and the difference may surprise you. 
