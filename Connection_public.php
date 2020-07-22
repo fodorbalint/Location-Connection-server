@@ -17,33 +17,50 @@ class Connection {
     private $port=null;
     private $socket=null;
     public $bucket=null;
-    const FIREBASE_KEY = "--------------------------------------------------------------------------------------------------------------------------------------------------------";
-    const GOOGLEMAPS_KEY = "---------------------------------------";
-    const EXCLUDED_IPS=array("192.168.0.100","-------------");
+    const FIREBASE_KEY = "";
+    const GOOGLEMAPS_KEY = "";
+    const OWN_IP = "";
+    const EXCLUDED_IPS=array("","","",self::OWN_IP);
+    const KEY_FILE = "";
+    const KID = "";
+    const ISS = "";
+    const BUNDLE_ID = "";
     
     function __construct() {
         switch ($_SERVER["HTTP_HOST"]) {
-            case "192.168.0.100":
+            case "":
+            case "":
+            case "":
                 // PHP Version 7.3.10
-                $this->servername = "---.---.---.---";
-                $this->username = "--------------------------------";
-                $this->password = "--------------------------------";
-                $this->dbname = isset($_GET["testDB"])?"--------------------------------":"--------------------------------";
+                $this->servername = "";
+                $this->username = "root";
+                $this->password = "";
+                $this->dbname = isset($_GET["testDB"])?"":"";
                 $this->port = 3306;
                 $_ENV["ROOT"] = ""; //local server needs to make a directory before writing nested file
                 break;
-            case "--------------------------------":
-                $this->servername = "localhost";
-                $this->username = "root";
-                $this->password = "--------------------------------";
-                $this->dbname = isset($_GET["testDB"])?"--------------------------------":"--------------------------------";
-                $this->socket = "/cloudsql/--------------------------------";        
+            case "":
+            case "":
+            case "":
+                $this->servername = "";
+                $this->username = "";
+                $this->password = "";
+                $this->dbname = isset($_GET["testDB"])?"":"";
+                $this->socket = "";        
                 require_once __DIR__ . '/vendor/autoload.php';
                 $projectID = $_ENV["PROJECT_NAME"];          
                 $client = new StorageClient(['projectId' => $projectID]);
                 $client->registerStreamWrapper();
                 $_ENV["ROOT"] = "gs://$projectID.appspot.com/"; //creates directory when writing nested file
                 $this->bucket = $client->bucket("$projectID.appspot.com");      
+                break;
+            case "":
+                // PHP Version 7.2.17
+                $this->servername = "";
+                $this->username = "";
+                $this->password = "";
+                $this->dbname= "";
+                $_ENV["ROOT"] = "";
                 break;
         }        
     }
@@ -58,6 +75,16 @@ class Connection {
         }
         $mysqli->set_charset('utf8mb4');
     }     
+}
+
+function useTestDatabase() { //used for admin login, where credentials are always stored in the real database
+    global $mysqli;
+    $mysqli->query("use ");
+}
+
+function useRealDatabase() {
+    global $mysqli;
+    $mysqli->query("use ");
 }
 
 function sqlexecuteliteral($querystr) {
@@ -190,7 +217,7 @@ function sqlinsert($table, $values, $requestid) {
 }
 
 function sqlupdate($table, $updatefields, $condition) {
-     global $mysqli;
+    global $mysqli;
      
     $querystr="update $table set ";
     $typestr="";
@@ -214,10 +241,13 @@ function sqlupdate($table, $updatefields, $condition) {
     else {
         $stmt->bind_param($typestr, ...$params);
         if (!$stmt->execute()) {
-            exit("Database error: ".$stmt->error);    
+            if ($table != "log_input") { //response can be cut half at a special character, resulting in database error
+                exit("Database error: ".$stmt->error);
+            }               
         }
         $stmt->close();
     }
+    
 }
 
 function sqldelete($table, $condition) {
