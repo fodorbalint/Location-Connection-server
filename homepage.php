@@ -827,7 +827,7 @@ function MainPage($page, $result="") {
         $arr=file("Time_series.csv");
         $table="<table cellspacing='10'>";
         
-        $arr[0]=str_replace("Conversions", "Installs", $arr[0]);
+        $arr[0]=str_replace("Conversions", "Downloads", $arr[0]);
         foreach ($arr as $elem) {
             $elem=trim($elem); //remove closing \n
             $table.="<tr>";
@@ -860,7 +860,10 @@ function MainPage($page, $result="") {
                     }
                 }
                 if ($column == 5) {
-                    $data=str_replace("DKK", "kr ",$data);
+                    $data=str_replace("DKK", "",$data);
+                }
+                else if ($column == 1) {
+                    $data=str_replace(", 2020", "",$data);
                 }
                 if ($column == 4 || $column == 5) {
                     $data=str_replace(".00", "",$data);
