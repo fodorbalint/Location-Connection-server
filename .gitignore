@@ -6,6 +6,7 @@ userimagestest
 vendor
 AuthKey*.p8
 Connection.php
+ConnectionTest.php
 mail.php
 php_errors.log
 frame.html

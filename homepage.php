@@ -864,6 +864,7 @@ function MainPage($page, $result="") {
                 }
                 else if ($column == 1) {
                     $data=str_replace(", 2020", "",$data);
+                    $data=str_replace(" 2020", "",$data);
                 }
                 if ($column == 4 || $column == 5) {
                     $data=str_replace(".00", "",$data);
