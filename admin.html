@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin page</title>
+<style>
+    body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        height: 100%;
+        width:100%;
+        margin:auto;
+        font-family: Verdana;
+        overflow-x: hidden;   
+    }
+    
+    td {    
+        cursor:default;
+    }
+    
+    td div {
+        overflow:hidden;
+        text-overflow:ellipsis;
+    }
+    
+    #infoPanel {
+        position:absolute;
+        border: 1px solid black;
+        left:0px;
+        top:0px;
+        visibility:hidden;
+        background:white;
+        word-wrap: break-word;
+        cursor:default;
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently
+        supported by Chrome, Opera and Firefox */
+    } 
+    
+    #editField {
+        position:absolute;
+        left:-1px;
+        top:-1px;      
+        background: rgb(246,219,255);     
+        visibility:hidden;
+        font-family: Verdana; 
+        border:1px solid black;
+        vertical-align: middle;
+        overflow:hidden;
+        resize:none;
+    }
+    
+    #menucontainer {
+        width:100%;
+        height:40px;
+        font-size:14px;
+    }
+    
+    #menuLeft {
+        font-size:14px;
+        position:absolute;
+        left:0px;
+        top:40px;
+        border:1px solid black;
+        cursor:pointer;
+        visibility:hidden; 
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently
+        supported by Chrome, Opera and Firefox */   
+    }
+    
+    #menuRight {
+        font-size:14px;
+        position:absolute;     
+        right:0px;
+        top:40px;
+        border:1px solid black;
+        cursor:pointer;
+        visibility:hidden; 
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently
+        supported by Chrome, Opera and Firefox */   
+    }  
+    
+    .sandwichmenucontainer {
+        width:40px;
+        height:40px;
+        float:left; 
+        background-color:#f9fce8;
+    }  
+    
+    .sandwichmenucontainer:hover {
+        background-color:#e3f08e;
+    }
+    
+    .sandwichmenucontainer:active {
+        background-color:#cde534;
+    }
+    
+    .menuitemLeft {
+        width:calc(100% - 16px);
+        padding-top:5px;
+        padding-bottom:5px;
+        padding-left:8px;
+        padding-right:8px;
+        white-space:nowrap;
+        background-color:#f9fce8;
+    }
+    
+    .menuitemLeft:hover {
+        background-color:#e3f08e;   
+    } 
+    
+    .menuitemLeft:active {
+        background-color:#cde534;  
+    }
+    
+    .menuitemLeft_selected {
+        width:calc(100% - 16px);
+        padding-top:5px;
+        padding-bottom:5px;
+        padding-left:8px;
+        padding-right:8px;
+        white-space:nowrap;
+        background-color:#cde534;
+    }
+    
+    .menuitemRight {
+        width:calc(100% - 16px);
+        padding-top:8px;
+        padding-bottom:8px;
+        padding-left:13px;
+        padding-right:13px;
+        font-size:16px;
+        white-space:nowrap;
+        background-color:#f9fce8;
+    }
+    
+    .menuitemRight:hover {
+        background-color:#e3f08e;   
+    } 
+    
+    .menuitemRight:active {
+        background-color:#cde534;  
+    }
+    
+    .currentTable {
+        height:100%;
+        width:200px;          
+        background-color:#444444;
+        color:white;
+        float:left;
+        text-align:center; 
+        font-weight:bold;
+        line-height:40px;
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently
+        supported by Chrome, Opera and Firefox */  
+    } 
+    
+    .currentTable:hover {
+        background-color:#222222;
+    }
+    
+    .currentTable:active {
+        background-color:#000000;
+    } 
+
+    .currentTableTest {
+        height:100%;
+        width:200px;          
+        background-color:#CC6666;
+        color:white;
+        float:left;
+        text-align:center; 
+        font-weight:bold;
+        line-height:40px;
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently
+        supported by Chrome, Opera and Firefox */  
+    } 
+    
+    .currentTableTest:hover {
+        background-color:#AA4444;
+    }
+    
+    .currentTableTest:active {
+        background-color:#882222;
+    }   
+    
+    .menucenter {
+        height:100%;
+        width:calc((100% - 290px)/3);          
+        background-color:#D8D8D8;
+        float:left;
+        text-align:center; 
+        font-weight:bold;
+        line-height:40px;
+        cursor:default; 
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently
+        supported by Chrome, Opera and Firefox */  
+    }
+    
+    .menucenter_active {
+        height:100%;
+        width:calc((100% - 290px)/3);         
+        background-color:#f2ccff;
+        float:left;
+        text-align:center; 
+        font-weight:bold;
+        line-height:40px; 
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently
+        supported by Chrome, Opera and Firefox */  
+    } 
+    
+    .menucenter_active:hover {           
+        background-color:#e699ff;  
+    }
+    
+    .menucenter_active:active {           
+        background-color:#d966ff;             
+    }   
+    
+    .menuseparator {
+        width:2px;
+        height:100%;
+        background-color:#000000;
+        float:left;
+    }
+    
+    #horizontalseparator {
+        width:100%;
+        height:2px;
+        background-color:#000000;
+    }
+    
+    
+    
+    #bodyContent {
+        position:absolute;
+        width:100%;
+        top:42px;    
+        bottom:0px;
+        overflow-y:auto;
+        overflow-x:hidden;    
+    }
+    
+    #data {
+        margin-top:-1px;
+        width: 100%;
+        white-space: nowrap;
+        table-layout: fixed;
+    }
+    
+    th {
+        text-align:left;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        cursor:default;
+    }
+    
+    #measure {
+        visibility:hidden;
+        width: auto;
+        position:absolute;
+        white-space:nowrap;    
+    }
+    
+    .rowPair {
+        background-color:#e3f08e;
+    }
+    
+    .rowImpair {
+        background-color:#f9fce8;
+    }
+    
+    .rowPair_selected {
+        background-color:#e699ff;
+    }
+    
+    .rowImpair_selected {
+        background-color:#f2ccff;
+    }
+    
+    #changePassword {
+        position:absolute;
+        top:-1px;
+        right:-1px;
+        padding:10px;
+        background:white;
+        border:1px solid black;     
+    }
+    
+    #messagebox {
+        color:#CC0000;
+        padding:10px;
+        padding-bottom:5px;
+    }
+    .edittext {
+        width:250px;
+        height:22px;
+        font-size:16px;              
+    }
+    .button {
+        font-size:16px;
+        width:100%;
+        padding:5px;
+        margin-top:5px;
+    }
+    
+    #changePassword {
+        display:none;    
+    } 
+    
+    
+</style>
+<script>
+    rules=document.styleSheets[0].cssRules;
+    
+    if (!detectmob()) {
+        rules[5].style.cursor="pointer"; //on mobile the picture would be selected when clicking on it
+        
+        rules[0].style.fontSize="14px";
+        rules[4].style.fontSize="14px";
+        
+        rules[1].style.height="17px";
+        rules[2].style.height="17px";
+        
+        rules[3].style.paddingLeft="3px";
+        rules[3].style.paddingRight="3px";
+        rules[3].style.paddingTop="4px";
+        rules[3].style.paddingBottom="4px";
+        
+        rules[4].style.paddingLeft="3px";
+        rules[4].style.paddingRight="3px";
+        rules[4].style.paddingTop="4px";
+        rules[4].style.paddingBottom="4px";
+        rules[4].style.width="calc(100% - 6px)";
+        rules[4].style.height="calc(100% - 8px)";
+        
+        /* rules[0].style.fontSize="10px"; 
+        rules[2].style.fontSize="10px";
+        
+        rules[1].style.paddingLeft="3px";
+        rules[1].style.paddingRight="3px";
+        rules[1].style.paddingTop="6px";
+        rules[1].style.paddingBottom="7px";
+        
+        rules[2].style.paddingLeft="3px";
+        rules[2].style.paddingRight="3px";
+        rules[2].style.paddingTop="6px";
+        rules[2].style.paddingBottom="7px";
+        rules[2].style.width="calc(100% - 6px)";
+        rules[2].style.height="calc(100% - 13px)";*/
+    }
+    else {
+        rules[0].style.fontSize="10px"; 
+        rules[4].style.fontSize="10px";
+        
+        rules[1].style.height="12px";
+        rules[2].style.height="12px";
+        
+        rules[3].style.paddingLeft="3px";
+        rules[3].style.paddingRight="3px";
+        rules[3].style.paddingTop="7.5px";
+        rules[3].style.paddingBottom="8px";
+        
+        rules[4].style.paddingLeft="3px";
+        rules[4].style.paddingRight="3px";
+        rules[4].style.paddingTop="7.5px";
+        rules[4].style.paddingBottom="8px";
+        rules[4].style.width="calc(100% - 6px)";
+        rules[4].style.height="calc(100% - 15.5px)";
+    }
+    
+    function detectmob() { 
+        if( navigator.userAgent.match(/Android/i)
+        || navigator.userAgent.match(/webOS/i)
+        || navigator.userAgent.match(/iPhone/i)
+        || navigator.userAgent.match(/iPad/i)
+        || navigator.userAgent.match(/iPod/i)
+        || navigator.userAgent.match(/BlackBerry/i)
+        || navigator.userAgent.match(/Windows Phone/i)
+        )
+        {
+            mobile=true;
+            return true;
+        }
+        else
+        {
+            mobile=false;
+            return false;
+        }
+    }
+    
+    currentAutoIncrement = 110;
+    thisTable="[tableName]";
+    username="[username]";
+    testDB="[testDB]";
+    [colDefs]
+    definition=colDefs[window.innerWidth]; 
+    //alert(window.innerWidth + " " + document.documentElement.clientWidth);//tablet: portrait 628 (desktop 980), landscape 1004, computer: 1920 (scrollbars 1903) 
+</script>
+<div id="measure"></div>
+<div id="menucontainer">
+    <div class="sandwichmenucontainer">
+        <img src="images/sandwichmenu_left.svg" onclick="openLeftMenu(event)"/>
+    </div>
+    <div class="menuseparator"></div>
+    <div class="[currentTableStyle]" onclick="reload()">[tableName]</div>
+    <div class="menuseparator"></div>
+    <div id="editButton" class="menucenter" onclick="editButtonClicked(event)">Edit value</div>
+    <div class="menuseparator"></div>
+    <div id="deleteButton" class="menucenter" onclick="deleteRow()">Delete selected</div>
+    <div class="menuseparator"></div>
+    <div id="emptyButton" class="menucenter_active" onclick="emptyTable()">Empty table</div>
+    <div class="menuseparator"></div>
+    <div class="sandwichmenucontainer">    
+        <img src="images/sandwichmenu_right.svg" onclick="openRightMenu(event)"/>
+    </div>        
+</div> 
+<div id="bodyContent">
+    <div id="infoPanel"><textarea id="editField"></textarea></div>
+    <div id="changePassword">        
+        <table cellspacing="10" cellpadding="0">            
+            <tr>
+                <td>Current:
+                </td>
+                <td><input class="edittext" type="password" id="PasswordCurrent" />
+                </td>
+            </tr>
+            <tr>
+                <td>New:
+                </td>
+                <td><input class="edittext" type="password" id="PasswordNew" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><input class="button" type="submit" onclick="changePassword()" value="Done" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    [content] 
+</div>
+<div id="horizontalseparator"></div>
+<div id="menuLeft">[tablelist]</div>
+<div id="menuRight">
+    [switchtest]
+    <div class="menuitemRight" onclick="clearOwnLog()">Clear own log</div>
+    <div class="menuitemRight" onclick="resetAutoIncrement()">Set profiledata auto_increment to...</div>
+    <div class="menuitemRight" onclick="showChangePassword()">Change password</div>
+    <div class="menuitemRight" onclick="logOut()">Log out</div>    
+</div>
+
+<script>
+    bodyContent=document.getElementById("bodyContent");
+    infoPanel=document.getElementById("infoPanel");
+    editField=document.getElementById("editField");
+    menuLeft=document.getElementById("menuLeft");
+    menuRight=document.getElementById("menuRight");   
+    editButton=document.getElementById("editButton");
+    deleteButton=document.getElementById("deleteButton");
+    emptyButton=document.getElementById("emptyButton");
+    tbl = document.getElementById("data");
+    selectedRows=[];
+    selectedIDs=[];
+    dblTime=500;
+    timer=null;
+    requestLoading=false;
+    lastSelectedIndex=null;
+    
+    definition=colDefs[bodyContent.clientWidth];
+    if (definition != null) {
+        selectedDef=definition.split(",");
+    }
+    else {
+        minDiff=bodyContent.clientWidth;
+        selectedValue="";
+        for (const [key, value] of Object.entries(colDefs)) {
+            diff=Math.abs(bodyContent.clientWidth - key);
+            if (diff < minDiff) {
+                minDiff=diff;
+                selectedValue=value;            
+            }  
+        }
+        if (selectedValue == "") {
+            //alert("No column widths were set for this table."); 
+            selectedDef=null;        
+        }
+        else {
+            selectedDef=selectedValue.split(",");
+        }
+    }
+    
+    document.getElementById("PasswordNew").onkeydown=function() {
+        if (event.keyCode == 13) { changePassword(); }
+    };
+    
+    window.onclick=closeMenu;
+    window.onkeydown=function () {
+        if (infoPanel.style.visibility=="visible" && editField.style.visibility!="visible") {
+            if (event.keyCode==13) {
+                editValue(false);
+                event.preventDefault();
+                return false;    
+            }
+            else if (event.keyCode==27) {
+                hideContent();
+            } 
+            
+        } 
+        else if (infoPanel.style.visibility != "visible" && event.keyCode==46) {
+            deleteRow();
+        }
+    };
+    editField.onkeydown=function() {
+        if (event.keyCode==13  && !event.shiftKey) {
+            editValue(true);
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        }
+        else if (event.keyCode==27) {
+            editValue(false);
+            event.stopPropagation();
+        }
+    }
+    
+    infoPanel.onclick=function () {infoBoxClicked(event)};
+    editField.onclick=function () {event.stopPropagation()};
+    
+    if (tbl != null) {
+        if (selectedDef != null) {
+            for (var i = 1; i < tbl.rows[0].cells.length; i++) {
+                tbl.rows[0].cells[i].style.width=selectedDef[i-1];    
+            }    
+        }
+        
+        for (var i = 0; i < tbl.rows.length; i++) {
+            for (var j = 1; j < tbl.rows[i].cells.length; j++) {
+                tbl.rows[i].cells[j].onclick = function () {
+                    if (menuLeft.style.visibility!="visible" && menuRight.style.visibility!="visible") {
+                        timer=setTimeout(cancelDoubleClick, dblTime);
+                        showContent(event, this);
+                    } 
+                };
+            }
+        }
+    }       
+    
+    //----- functions
+    
+    function openLeftMenu(event) {
+        if (menuLeft.style.visibility!="visible") { //at first it is empty
+            menuLeft.style.visibility="visible";
+            menuRight.style.visibility="hidden";    
+        }
+        else {
+            menuLeft.style.visibility="hidden";
+        }
+        event.stopPropagation();
+    }
+    
+    function openRightMenu(event) {
+        if (menuRight.style.visibility!="visible") {
+            menuRight.style.visibility="visible";
+            menuLeft.style.visibility="hidden";    
+        }
+        else {
+            menuRight.style.visibility="hidden";
+        }
+        event.stopPropagation();
+    }
+    
+    function selectTable(table) {
+        //on 000webhost, admin.php is needed instead of admin
+        window.location.href=window.location.protocol + "//" +  window.location.hostname + "/admin.php?table=" + table + testDB;
+        event.stopPropagation();    
+    }
+    
+    function closeMenu() {
+        if (menuLeft.style.visibility=="visible") {
+            menuLeft.style.visibility="hidden";
+        }
+        if (menuRight.style.visibility=="visible") {
+            menuRight.style.visibility="hidden";
+        }
+        if (infoPanel.style.visibility=="visible") {
+            hideContent();
+        }
+    }
+    
+    function showContent(event, cel) {
+        selectedCell=cel;
+        colNo=cel.cellIndex;
+        rowID=cel.parentNode.children[1].innerText;
+        var viewportOffsetCell = cel.getBoundingClientRect();  
+        var viewportOffsetContainer = document.getElementById("bodyContent").getBoundingClientRect();
+        infoPanel.style.visibility="visible";
+        infoPanel.style.top = (cel.offsetTop - 2) + "px";
+        infoPanel.style.left = (cel.offsetLeft - 1) + "px";
+        infoPanel.style.right="0px";
+        updatePanel();     
+        editField.style.visibility="hidden";
+
+        if (selectedCell.parentNode.rowIndex != 0) {
+            editButton.innerText="Edit value";
+            editButton.className="menucenter_active";
+        }
+        event.stopPropagation();
+    }
+    
+    function updatePanel() {
+        if (infoPanel.firstChild.nodeName=="DIV") {
+            infoPanel.removeChild(infoPanel.firstChild);
+        }
+        pLeft=parseInt(window.getComputedStyle(infoPanel, null).getPropertyValue("padding-left").split("px")[0]);
+        pRight=parseInt(window.getComputedStyle(infoPanel, null).getPropertyValue("padding-right").split("px")[0]);
+        pTop=parseInt(window.getComputedStyle(infoPanel, null).getPropertyValue("padding-top").split("px")[0]);
+        pBottom=parseInt(window.getComputedStyle(infoPanel, null).getPropertyValue("padding-bottom").split("px")[0]); 
+        
+        if (selectedCell.parentNode.rowIndex == 0) {
+            document.getElementById("measure").innerHTML="<b>" + selectedCell.innerText + "</b>";
+            var textW=document.getElementById("measure").offsetWidth + 2; // border 1 + 1
+            document.getElementById("measure").innerHTML="";
+        }
+        else {
+            document.getElementById("measure").innerHTML=selectedCell.innerText;
+            var textW=document.getElementById("measure").offsetWidth + 2; // border 1 + 1
+            document.getElementById("measure").innerHTML="";
+        }
+        
+        var cellW=selectedCell.offsetWidth;
+        var left=infoPanel.offsetLeft;
+        //alert(left + " " + cellW + " " + textW + " " + bodyContent.clientWidth + " " + (bodyContent.clientWidth - left));
+        if (textW + pLeft + pRight <= cellW) {
+            infoPanel.style.width=(cellW - pLeft - pRight) + "px";
+        }
+        else if (textW + 2 + pLeft + pRight <= bodyContent.clientWidth - left) { //padding 4 + 3, border 1 + 1
+            infoPanel.style.width=textW + "px";
+        }
+        else {
+            if (!mobile) {
+                infoPanel.style.width=(bodyContent.clientWidth - left - 2 - pLeft - pRight) + "px";
+            }
+            else {
+                infoPanel.style.width=(bodyContent.clientWidth - left - 3 - pLeft - pRight) + "px";
+            }
+            
+            if (infoPanel.offsetWidth < bodyContent.clientWidth / 2) {
+                var diff=Math.floor(bodyContent.clientWidth / 2) - infoPanel.offsetWidth;
+                infoPanel.style.left=infoPanel.offsetLeft-diff + "px";
+                if (!mobile) {
+                    infoPanel.style.width=(infoPanel.offsetWidth+diff- 2 - pLeft - pRight) + "px";
+                }
+                else {
+                    infoPanel.style.width=(infoPanel.offsetWidth+diff- 1.5 - pLeft - pRight) + "px";
+                } 
+            }
+        }
+        var div=document.createElement("div");
+
+        if (selectedCell.parentNode.rowIndex == 0) {
+            div.innerHTML="<b>" + selectedCell.innerHTML + "</b>";
+        }
+        else {
+            div.innerHTML=selectedCell.innerHTML; 
+        }
+
+        infoPanel.insertBefore(div, editField);
+        if (selectedCell.innerText != "") {        
+            infoPanel.style.height="auto";
+        }
+        else {
+            infoPanel.style.height = (selectedCell.offsetHeight - pTop - pBottom) + "px"; // padding 3 + 3
+        }
+        
+    }
+    
+    function cancelDoubleClick() {
+        timer=null;
+    }
+    
+    function infoBoxClicked(event) {
+        if (timer != null) {
+            clearTimeout(timer);
+            timer=null;
+            editValue(false);
+        }
+        else {
+            timer = setTimeout(function() { 
+                cancelDoubleClick();            
+                hideContent();
+            }, dblTime);
+        }
+        event.stopPropagation();
+    }
+    
+    function editButtonClicked(event) {
+        editValue(true);
+        event.stopPropagation();
+    }
+    
+    function hideContent() {
+        if (infoPanel.firstChild.nodeName=="DIV") {
+            infoPanel.removeChild(infoPanel.firstChild);
+        }
+        infoPanel.style.visibility="hidden";
+        editField.style.visibility="hidden";
+        editButton.innerText="Edit value";
+        editButton.className="menucenter";    
+    }
+    
+    function selectRow(event) {     
+        if (requestLoading) {
+            event.preventDefault();
+            return;
+        }
+        
+        i = event.srcElement.parentNode.parentNode.rowIndex;
+        if (i != 0) {
+            var index=selectedRows.indexOf(i);
+            if (index == -1) {
+                if (event.shiftKey && lastSelectedIndex != null) { // select range
+                    if (i>lastSelectedIndex) {
+                        startIndex=lastSelectedIndex + 1;
+                        endIndex=i;
+                    }
+                    else {
+                        startIndex=i;
+                        endIndex=lastSelectedIndex - 1;
+                    }
+                    for (j=startIndex; j<=endIndex; j++) {
+                        if (j % 2 == 0) {
+                            tbl.rows[j].className="rowPair_selected";    
+                        }
+                        else {
+                            tbl.rows[j].className="rowImpair_selected";     
+                        }
+                        tbl.rows[j].cells[0].firstChild.checked=true;
+                        if (selectedRows.indexOf(j) == -1) {
+                            selectedRows.push(j);
+                            selectedIDs.push(getIdByRow(j)); 
+                        }
+                    }
+                    lastSelectedIndex=i;
+                }
+                else { // select one
+                    if (i % 2 == 0) {
+                        tbl.rows[i].className="rowPair_selected";    
+                    }
+                    else {
+                        tbl.rows[i].className="rowImpair_selected";     
+                    }
+                    selectedRows.push(i);
+                    selectedIDs.push(getIdByRow(i)); 
+                    lastSelectedIndex=i;    
+                }
+                deleteButton.className="menucenter_active"; 
+            }
+            else {
+                if (i % 2 == 0) {
+                    tbl.rows[i].className="rowPair";    
+                }
+                else {
+                    tbl.rows[i].className="rowImpair";     
+                }
+                selectedRows.splice(index,1);
+                selectedIDs.splice(index,1);
+                lastSelectedIndex=null;
+                if (selectedRows.length == 0) {
+                    deleteButton.className="menucenter";
+                }                        
+            }
+            
+        }
+        else {
+            if (selectedRows.length != tbl.rows.length-1) { //select all if none or some rows are selected
+                selectedRows=[];
+                selectedIDs=[];
+                for (var i = 1; i < tbl.rows.length; i++) {
+                    tbl.rows[i].cells[0].firstChild.checked=true;                
+                    if (i % 2 == 0) {
+                        tbl.rows[i].className="rowPair_selected";    
+                    }
+                    else {
+                        tbl.rows[i].className="rowImpair_selected";     
+                    } 
+                    selectedRows.push(i);
+                    selectedIDs.push(getIdByRow(i));   
+                }
+                lastSelectedIndex=null;
+                tbl.rows[0].className="rowPair_selected";
+                deleteButton.className="menucenter_active";            
+                
+            }
+            else { //deselect all
+                for (var i = 1; i < tbl.rows.length; i++) {
+                    tbl.rows[i].cells[0].firstChild.checked=false;
+                    if (i % 2 == 0) {
+                        tbl.rows[i].className="rowPair";    
+                    }
+                    else {
+                        tbl.rows[i].className="rowImpair";     
+                    }   
+                }
+                tbl.rows[0].className="rowPair";
+                selectedRows=[];
+                selectedIDs=[];
+                lastSelectedIndex=null;
+                deleteButton.className="menucenter";
+            }
+        }   
+    }
+    
+    function getIdByRow(i) {
+        return tbl.rows[i].cells[1].innerText;
+    }
+  
+    function editValue(update) {
+        if (infoPanel.style.visibility == "visible") {
+            if (editField.style.visibility != "visible") {
+                if (selectedCell.parentNode.rowIndex != 0) {
+                    editField.style.visibility="visible";
+                    editField.value=selectedCell.innerText;
+                    editButton.innerText="Done";
+                    editField.focus();
+                }
+            }
+            else {            
+                if (update) {
+                    value=encodeURIComponent(editField.value);
+                    if (value.substring(value.length-3) == "%0A") { //for Safari, which puts a newline at the end of the text field
+                        value = value.substring(0, value.length - 3);
+                    }
+                    makeRequest("/admin.php?action=edit&tableName=" + thisTable, 1, "&ID=" + rowID + "&Field=" + tbl.rows[0].cells[colNo].innerText + "&Value=" + value);
+                }
+                else {
+                    editField.style.visibility="hidden";
+                    editButton.innerText="Edit value";
+                }
+            }
+        }
+    }
+    
+    function deleteRow() {
+        if (selectedIDs.length != 0) {
+            makeRequest("/admin.php?action=delete&tableName=" + thisTable, 2, "IDs=" + selectedIDs.join(";")); 
+        }    
+    }
+    
+    function emptyTable() {
+        var r = confirm("Do you really want to empty this table?");
+        if (r) {
+            makeRequest("/admin.php?action=empty&tableName=" + thisTable, 3);
+        } 
+    } 
+
+    function switchTest() {
+        window.location.href=window.location.protocol + "//" +  window.location.hostname + "/admin.php?table=" + thisTable + "&testDB";
+        event.stopPropagation(); 
+    }
+
+    function switchNormal() {
+        window.location.href=window.location.protocol + "//" +  window.location.hostname + "/admin.php?table=" + thisTable;
+        event.stopPropagation(); 
+    }
+
+    function clearOwnLog() {
+        makeRequest("/admin.php?action=clearownlog", 6);
+    }
+    
+    function resetAutoIncrement() {
+        var newValue = prompt("Value", currentAutoIncrement);
+        if (newValue != null) {
+            makeRequest("/admin.php?action=resetautoincrement&Value=" + newValue, 5);
+        }
+    } 
+    
+    function showChangePassword() {
+        menuRight.style.visibility="hidden";
+        document.getElementById("changePassword").style.display="block";
+    } 
+    
+    function logOut() {
+        window.location.href=window.location.protocol + "//" +  window.location.hostname + "/admin.php?action=logout";
+    }
+    
+    function changePassword() {
+        makeRequest("/admin.php?action=changepassword&ChangeUsername=" + username + "&PasswordCurrent=" + document.getElementById("PasswordCurrent").value
+        + "&PasswordNew=" + document.getElementById("PasswordNew").value, 4);
+    }
+    
+    function makeRequest(url, requestType, postData=null) {
+        if (requestLoading) return;
+        requestLoading=true;
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    switch (requestType) {
+                        case 1: //update
+                        if (this.responseText.substring(0,2)=="OK") {
+                            selectedCell.innerText=this.responseText.substring(3);
+                            updatePanel(); 
+                            editField.style.visibility="hidden";
+                            editButton.innerText="Edit value";   
+                        }
+                        else {
+                            var errorString=this.responseText.split(":")[1];
+                            alert(errorString);
+                        }                     
+                        break;
+                        case 2: //delete row
+                        if (this.responseText=="OK") {
+                            selectedRows.sort(function(a, b){return a-b});
+                            for(var i=selectedRows.length-1;i>=0;i--) {
+                                tbl.deleteRow(selectedRows[i]);
+                            }
+                            selectedRows=[];
+                            selectedIDs=[]; 
+                            lastSelectedIndex=null;
+                            if (tbl.rows[0].cells[0].firstChild.checked) {
+                                tbl.rows[0].cells[0].firstChild.checked=false;
+                                tbl.rows[0].className="rowPair";
+                            }                       
+                        }
+                        else {
+                            var errorString=this.responseText.split(":")[1];
+                            alert(errorString);
+                        }
+                        break;
+                        case 3: //empty table
+                        if (this.responseText == "OK") {
+                            for(var i=tbl.rows.length-1;i>0;i--) {
+                                tbl.deleteRow(i);
+                            }
+                            selectedRows=[];
+                            selectedIDs=[]; 
+                            lastSelectedIndex=null;  
+                            if (tbl.rows[0].cells[0].firstChild.checked) {
+                                tbl.rows[0].cells[0].firstChild.checked=false;
+                                tbl.rows[0].className="rowPair";
+                            }  
+                        }
+                        else {
+                            var errorString=this.responseText.split(":")[1];
+                            alert(errorString);
+                        }
+                        break;
+                        case 4: //change password
+                        if (this.responseText=="OK") {
+                            alert("Password changed.");
+                        }
+                        else {
+                            var errorString=this.responseText.split(":")[1];
+                            alert(errorString);
+                        }
+                        document.getElementById("changePassword").style.display="none";
+                        break;
+                        case 5:
+                        if (this.responseText=="OK") {
+                            alert("Auto increment changed.");
+                        }
+                        else {
+                            alert(this.responseText);
+                        }
+                        break;
+                        case 6:
+                        if (this.responseText=="OK") {
+                            if (thisTable == "log_input" && tbl != null) {
+                                var cellCount = tbl.rows[0].cells.length;
+                                for (var i = tbl.rows.length-1; i >= 0; i--) {
+                                    if (tbl.rows[i].cells[cellCount-1].innerText == "[ownIP]" || tbl.rows[i].cells[cellCount-1].innerText.substring(0, 8) == "192.168." || tbl.rows[i].cells[cellCount-1].innerText.substring(0, 7) == "77.241.") {
+                                        tbl.deleteRow(i);
+                                    }
+                                }
+                            }                           
+                        }
+                        else {
+                            alert(this.responseText);
+                        }
+                    }
+                }
+                else {
+                    alert("Network error: " + this.status);            
+                }
+                requestLoading=false;
+            }        
+        };
+        if (postData == null) {
+            xhttp.open("GET", url + testDB, true);
+            xhttp.send();
+        }
+        else {
+            xhttp.open("POST", url + testDB, true);
+            xhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            xhttp.send(postData);
+        }
+        
+    } 
+    
+    function reload() {
+        window.location.reload();
+    }
+</script>        

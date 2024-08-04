@@ -1,0 +1,33 @@
+bubble fill color #93ff93
+
+14 dp text size from bottom of p to top of f = LG G5 47 px
+bubble inner height 94 px, outer 98 px
+corner inner radius 18 px, outer 20 px
+side inner padding 24 px, outer 26 px
+bottom to baseline inner 31 px (1/3 height), outer 33 px, top to topline inner 39 px
+
+on M5
+14 dp text size from bottom of p to top of f = M5 36 px
+bubble inner height 72 px, outer 76 px
+corner inner radius 14 px, outer 16 px
+side inner padding 18 px, outer 20 px
+bottom to baseline inner 24 px, outer 26 px
+
+iphone
+14 dp = 40 px from bottom of g to top of f
+bubble inner height 80 px, outer 84 px
+corner inner radius 15 px, outer 17 px
+side inner padding 20 px, outer 22 px
+bottom to baseline inner 27 px, outer 29 px 
+
+ipad
+14 dp = 27 px from bottom of g to top of f
+bubble inner height 54 px, outer 56 px
+corner inner radius 10 px, outer 11 px
+side inner padding 14 px, outer 15 px
+bottom to baseline inner 18 px, outer 19 px 
+
+android grid view -> tile view. Move map caption to left
+
+
+
