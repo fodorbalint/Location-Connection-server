@@ -1,12 +1,17 @@
 {
-    "require": {
-        "google/cloud": "^0.73",
-        "sendgrid/sendgrid": "7.3.0",
-        "edamov/pushok": "^0.11.2"
-    },
-    "config": {
-        "platform": {
-            "php": "7.3.0"
+    "name": "fodor/location-connectionserver",
+    "autoload": {
+        "psr-4": {
+            "Fodor\\LocationConnectionserver\\": "src/"
         }
+    },
+    "authors": [
+        {
+            "name": "fodorbalint",
+            "email": "fodorbalint@gmail.com"
+        }
+    ],
+    "require": {
+        "firebase/php-jwt": "^6.11"
     }
 }

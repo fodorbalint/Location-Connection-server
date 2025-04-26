@@ -2,6 +2,8 @@ logs
 phpMyAdmin
 sendgrid
 temp_uploads
+userimages
+userimagestemp
 userimagestest
 vendor
 AuthKey*.p8
@@ -11,3 +13,4 @@ mail.php
 php_errors.log
 frame.html
 research
+*.json

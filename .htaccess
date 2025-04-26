@@ -1,5 +1,7 @@
 RewriteEngine On
-RewriteCond %{HTTP:X-Forwarded-Proto} !https
-RewriteCond %{HTTPS} off
-RewriteCond %{HTTP:CF-Visitor} !{"scheme":"https"}
-RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+RewriteRule ^images/(.*)(\.(png|jpg|jpeg|svg|gif|bmp|webp))?$ index.php?image=images/$1$2 [QSA,L]
+RewriteRule ^screenshots/(.*)(\.(png|jpg|jpeg|gif|bmp|webp))?$ index.php?image=screenshots/$1$2 [QSA,L]
+RewriteRule ^userimages/(.*)(\.(png|jpg|jpeg|gif|bmp|webp))?$ index.php?image=userimages/$1$2 [QSA,L]
+RewriteRule ^userimagestemp/(.*)(\.(png|jpg|jpeg|gif|bmp|webp))?$ index.php?image=userimagestemp/$1$2 [QSA,L]
+RewriteRule ^tutorial/(.*)(\.(png|jpg|jpeg|svg|gif|bmp|webp))?$ index.php?image=tutorial/$1$2 [QSA,L]

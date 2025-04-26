@@ -32,4 +32,4 @@ If they go into your profile, the map will change accordingly.
 
 You may ask, what is the price?
 Location Connection is an open-source and donation-supported platform, so you will never be asked to pay, and neither will you be distracted by ads.
-See the source code at https://github.com/fodorbalint/?tab=repositories, or the economy at https://locationconnection.me/?page=economy, where you can also get in touch with me with ideas about how to reach more people in your area.
+See the source code at https://github.com/fodorbalint/?tab=repositories, or the economy at https://locationconnection.dk/?page=economy, where you can also get in touch with me with ideas about how to reach more people in your area.

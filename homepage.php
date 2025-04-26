@@ -23,8 +23,102 @@ use Jose\Component\Signature\JWSBuilder;
 use Jose\Component\Signature\Algorithm\ES256;
 use Jose\Component\Signature\Serializer\CompactSerializer;*/
 
+/*require_once 'vendor/autoload.php';
+
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
+function getAccessToken($serviceAccountFile)
+{
+    $credentials = json_decode(file_get_contents($serviceAccountFile), true);
+
+    file_put_contents("credentials.txt", $credentials);
+
+    $now = time();
+    $jwtHeader = ['alg' => 'RS256', 'typ' => 'JWT'];
+    $jwtClaimSet = [
+        'iss' => $credentials['client_email'],
+        'scope' => 'https://www.googleapis.com/auth/firebase.messaging',
+        'aud' => $credentials['token_uri'],
+        'iat' => $now,
+        'exp' => $now + 3600,
+    ];
+
+    $jwt = JWT::encode($jwtClaimSet, $credentials['private_key'], 'RS256');
+
+    file_put_contents("uri.txt", $credentials['token_uri']);
+    
+    $ch = curl_init($credentials['token_uri']);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+        'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        'assertion' => $jwt,
+    ]));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+    $response = curl_exec($ch);
+
+    if ($response === false) {
+        $error = curl_error($ch);
+        file_put_contents("curl_error.txt", $error);
+    }
+
+    curl_close($ch);
+
+    file_put_contents("tokendata.txt", $response);
+
+    $tokenData = json_decode($response, true);    
+
+    return $tokenData['access_token'] ?? null;
+}*/
+
+function sendFCMMessage($accessToken, $projectId, $message)
+{
+    $url = "https://fcm.googleapis.com/v1/projects/locationconnection/messages:send";
+
+    $payload = json_encode([
+        'message' => $message
+    ]);
+
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Authorization: Bearer ' . $accessToken,
+        'Content-Type: application/json; UTF-8',
+    ]);
+
+    $response = curl_exec($ch);
+    if (curl_errno($ch)) {
+        echo 'Curl error: ' . curl_error($ch);
+    } else {
+        echo 'Response: ' . $response;
+    }
+    curl_close($ch);
+}
+
+// USAGE:
+/*$serviceAccountFile = 'locationconnection-firebase-adminsdk-bksh1-1adf68cdfb.json'; // path to your downloaded file
+$accessToken = getAccessToken($serviceAccountFile);
+$projectId = 'locationconnection'; // from Firebase
+
+// Sample message
+$message = [
+    'token' => 'DEVICE_FCM_TOKEN',
+    'notification' => [
+        'title' => 'Hello',
+        'body' => 'World'
+    ],
+];
+
+$payload = json_encode([
+        'message' => $message
+]);
+
+sendFCMMessage($accessToken, $projectId, $message);*/
+
+
 require("Connection.php");
-$conn=new Connection();
+$conn = new Connection();
 
 $tempUploadFolder=isset($_GET["testDB"])?$_ENV["ROOT"]."userimagestesttemp":$_ENV["ROOT"]."userimagestemp";
 $uploadFolder=isset($_GET["testDB"])?$_ENV["ROOT"]."userimagestest":$_ENV["ROOT"]."userimages";
@@ -116,7 +210,7 @@ else {
         case "pres":
             require "pres.php";
             print getPresentation(0);
-            die();      
+            die();    
         case "": //api request
             break;    
         default:
@@ -172,7 +266,7 @@ $conn->sqlConnect();
 $requestID=0;
 //if (!(isset($_GET["action"]) && ($_GET["action"]=="register" || $_GET["action"]=="login" || $_GET["action"]=="loginsession" || $_GET["action"]=="profileedit" || $_GET["action"]=="setpassword" || $_GET["action"]=="changepassword"))) {
     if (!in_array($userip, $conn::EXCLUDED_IPS)) {
-        $requestID=sqlinsert("log_input", array(
+        $requestID = sqlinsert("log_input", array(
             "Time"=>array("s",date("Y-m-d H:i:s",time())),
             "URL"=>array("s",removeSession(truncateString($_SERVER["REQUEST_URI"],$maxLogLength))),
             "Response"=>array("s",""),
@@ -678,7 +772,7 @@ if (isset($_GET["action"])) {
         if (!$ios) {
             $text=str_replace("<li>", "<li>&nbsp;", $text);
         }           
-        $link="https://locationconnection.me/?page=legal#terms"; 
+        $link="https://locationconnection.dk/?page=legal#terms"; 
         $text=str_replace("[link]","on <a href=\"$link\">$link</a>",$text);
         $result="OK;$text";
     }   
@@ -727,7 +821,7 @@ else if (isset($_POST["homepagemessages"])) {
     MainPage($page,"Your message was sent.");    
 }
 else if (isset($_GET["page"])) {
-    switch ($_GET["page"]) {
+        switch ($_GET["page"]) {
         default:
         case "home":
             MainPage("home");
@@ -771,18 +865,19 @@ function MainPage($page, $result="") {
             "Referer"=>array("s",isset($_SERVER["HTTP_REFERER"])?str_replace("https://".$_SERVER["HTTP_HOST"],"",truncateString($_SERVER["HTTP_REFERER"],$homeLogLength)):""),
             "IP"=>array("s",$userip)
         ),false);   
-    }
+    }    
     
     $frame=file_get_contents("frame.html");
     
     $frame=str_replace("onclick=\"go('$page')\" class=\"menu\"","onclick=\"go('$page')\" class=\"menuselected\"",$frame);
     
     $content=file_get_contents("$page.html");
-    if ($page=="home") {
+    
+    if ($page=="home") {        
         require "pres.php";
         $content=str_replace("[presentation]", getPresentation(1), $content);
         $content=str_replace("https://github.com/fodorbalint/?tab=repositories",'<a href="https://github.com/fodorbalint/?tab=repositories">https://github.com/fodorbalint/?tab=repositories</a>',$content);
-        $content=str_replace("at https://locationconnection.me/?page=economy",'<a href="https://locationconnection.me/?page=economy">here</a>',$content);
+        $content=str_replace("at https://locationconnection.dk/?page=economy",'<a href="http://locationconnection.dk/?page=economy">here</a>',$content);
     }
     if ($page=="screenshots") {
         $images=array(
@@ -822,6 +917,7 @@ function MainPage($page, $result="") {
     }
     else if ($page == "legal") {
         $content=str_replace("[eula]",str_replace("[link]", "here", file_get_contents("eula.html")),$content);
+        
     }
     else if ($page == "economy") {
         $arr=file("Time_series.csv");
@@ -876,7 +972,7 @@ function MainPage($page, $result="") {
         $table.="</table>";
         $content=str_replace("[data]",$table,$content);
     }
-    
+
     $frame=str_replace("[content]",$content,$frame);
     
     if ($result != "") {
@@ -884,7 +980,7 @@ function MainPage($page, $result="") {
     }
     $frame=str_replace("[result]",$result,$frame);
     $frame=str_replace("[page]",$page,$frame); //tell Javascript which page we are on
-        
+    
     print $frame;
 }
 
@@ -4057,7 +4153,7 @@ use Pushok\Payload\Alert;*/
 }*/
 
 function sendCloud($from, $to, $token, $ios, $isBackground, $isInApp, $title, $body, $type, $meta) {
-    global $conn, $maxLogLength, $requestID;    
+    global $conn, $maxLogLength, $requestID, $accessToken;    
 
     if ($token == null) { //deleted user
         return;
@@ -4096,8 +4192,7 @@ function sendCloud($from, $to, $token, $ios, $isBackground, $isInApp, $title, $b
         ];
         
         $authProvider = AuthProvider\Token::create($options);
-        $jwt=$authProvider->get();
-        
+        $jwt=$authProvider->get();        
 
         $url = isset($_GET["testDB"])?"https://api.development.push.apple.com/3/device/".$token:"https://api.push.apple.com/3/device/".$token;
 
@@ -4114,7 +4209,7 @@ function sendCloud($from, $to, $token, $ios, $isBackground, $isInApp, $title, $b
             "RequestID"=>array("i",$requestID),
             "Time"=>array("s",date("Y-m-d H:i:s",time())),
             "Content"=>array("s",truncateString("iOS ".$data, $maxLogLength)),
-        ),false);
+        ), false);
         //Alternatively
         //https://github.com/Altaibaatar/APNS-with-auth-key-p8-using-PHP
 
@@ -4146,55 +4241,88 @@ function sendCloud($from, $to, $token, $ios, $isBackground, $isInApp, $title, $b
     }
     else {
         if ($isBackground) {
-            $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.'},"notification":{"title":"'.$title.'","body":"'.$body.'"}}';
+            $data = [
+                'token' => $token,
+                'data' => [
+                    'fromuser' => "$from",
+                    'touser' => "$to",
+                    'type' => $type,
+                    'meta' => $meta,
+                    'inapp' => "$isInApp"                
+                ],
+                'notification' => [
+                    'title' => $title,
+                    'body' => $body
+                ]
+            ];
         }
         else if ($title != null) {
-            $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.',"title":"'.$title.'","body":"'.$body.'"}}';
+            $data = [
+                'token' => $token,
+                'data' => [
+                    'fromuser' => "$from",
+                    'touser' => "$to",
+                    'type' => $type,
+                    'meta' => $meta,
+                    'inapp' => "$isInApp",
+                    'title' => $title,
+                    'body' => $body                
+                ]
+            ];
         }
         else {
-            $data='{"to":"'.$token.'","data":{"fromuser":'.$from.',"touser":'.$to.',"type":"'.$type.'","meta":"'.$meta.'","inapp":'.$isInApp.'}}';        
+            $data = [
+                'token' => $token,
+                'data' => [
+                    'fromuser' => "$from",
+                    'touser' => "$to",
+                    'type' => $type,
+                    'meta' => $meta,
+                    'inapp' => "$isInApp"                
+                ]
+            ];      
         }
         
-        $url="https://fcm.googleapis.com/fcm/send"; 
-        
-        $options = array(
-            "ssl" => array(
-                "verify_peer" => false,
-                "verify_peer_name" => false,
-            ),
-            'http' => array(
-                'header'  => "Content-Type:application/json\r\n".
-                "Authorization:key=".$conn::FIREBASE_KEY."\r\n",
-                'method'  => 'POST',
-                'content' => $data
-            )
-        );
-        $context  = stream_context_create($options);   
-        $result = file_get_contents($url, false, $context);
+        require_once("firebase.php");
 
-        //for logging
-        sqlinsert("log_errors", array(
-            "RequestID"=>array("i",$requestID),
-            "Time"=>array("s",date("Y-m-d H:i:s",time())),
-            "Content"=>array("s",truncateString($data." --- ".$result, $maxLogLength)),
-        ),false);
+        $message = json_encode([
+            'message' => $data
+        ]);
 
-        //can't insert emoji string to Content.
+        $url = "https://fcm.googleapis.com/v1/projects/locationconnection/messages:send";
         
-        if ($result === false) {
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $message);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $accessToken,
+            'Content-Type: application/json; UTF-8',
+        ]);
+
+        $result = curl_exec($ch);
+        if (curl_errno($ch)) {
             sqlinsert("log_errors", array(
                 "RequestID"=>array("i",$requestID),
                 "Time"=>array("s",date("Y-m-d H:i:s",time())),
-                "Content"=>array("s","Error sending message notification."),
-            ),false);
+                "Content"=>array("s",'Curl error: ' . curl_error($ch)),
+            ), false);
         }
-        else if (!strstr($result,'"success":1')) {
-            sqlinsert("log_errors", array(
-                "RequestID"=>array("i",$requestID),
-                "Time"=>array("s",date("Y-m-d H:i:s",time())),
-                "Content"=>array("s",truncateString($result." --- ".$to, $maxLogLength)),
-            ),false);
+        else {
+            // { "name": "projects/locationconnection/messages/0:1745579996943996%e37d5f25e37d5f25" }
+            // { "error": { "code": 400, "message": "The registration token is not a valid FCM registration token", "status": "INVALID_ARGUMENT", "details": [ { "@type": "type.googleapis.com/google.firebase.fcm.v1.FcmError", "errorCode": "INVALID_ARGUMENT" } ] } }
+
+            $obj = json_decode($result, true);
+            if (array_key_exists("error", $obj)) {
+                sqlinsert("log_errors", array(
+                    "RequestID"=>array("i",$requestID),
+                    "Time"=>array("s",date("Y-m-d H:i:s",time())),
+                    "Content"=>array("s",$obj['error']['message']." --- ".$data["token"]),
+                ), false);
+            }           
         }
+        curl_close($ch);
+        //can't insert emoji string to Content. 
     }       
 }
 
